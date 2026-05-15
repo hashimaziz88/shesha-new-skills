@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "description": "Allowlist of canonical Shesha CSS classes for the className property on containers and elements. Other classes may exist in projects but are not guaranteed to be styled.",
+    "source": "Shesha-Mcp-Server llm_instructions/general.md"
+  },
+  "pageChrome": [
+    "sha-page",
+    "sha-page-title",
+    "sha-page-heading",
+    "sha-page-content"
+  ],
+  "indexTable": [
+    "sha-index-table-full",
+    "sha-index-table-control",
+    "index-table-controls-left",
+    "index-table-controls-right",
+    "sha-index-toolbar"
+  ]
+}

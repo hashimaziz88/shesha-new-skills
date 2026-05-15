@@ -11,17 +11,22 @@ Inside any embedded JS string, these are available:
 | Global | What it is |
 |---|---|
 | `data` / `formData` | The current form values object (entity instance keyed by `propertyName`) — form-scoped state |
-| `formMode` | `'designer'` \| `'edit'` \| `'readonly'` |
-| `setFormData` | `(values, mergeOrReplace) => void` — programmatic form mutation |
-| `application` | App descriptor. Most useful: `application.user` (see below), `application.navigator.navigateToUrl(url)` for SPA navigation |
-| `http` | Axios-like client. `http.get/post/put/delete` |
-| `message` | AntD message (e.g. `message.success('Saved')`) |
+| `form` | Form instance API. `form.formMode`, `form.formArguments` (URL query params as object), `form.setFieldsValue({...})`, `form.defaultApiEndpoints` |
+| `formMode` | `'designer'` \| `'edit'` \| `'readonly'`. Alias for `form.formMode` |
+| `setFormData` | `({ values, mergeValues }) => void` — programmatic form mutation. `mergeValues: true` shallow-merges; default replaces |
+| `application` | App descriptor. Most useful: `application.user`, `application.navigator`, `application.settings` |
+| `application.navigator` | `navigateToUrl(url)`, `navigateToForm({ name, module }, queryParams)`, `goBack()` |
+| `http` | Axios-like client. `http.get/post/put/delete(url, { params?, data?, headers?, timeout? })` |
+| `message` | AntD message (`message.success/info/warning/error(content, duration?)`) |
 | `moment` | Moment.js |
 | `contexts.appContext` | App-wide shared state. Direct property access (`contexts.appContext.foo = bar`). See [shared-state.md](shared-state.md). |
 | `pageContext` | Inter-page shared state — preferred over `appContext` when value is needed only across two pages |
+| `parentFormValues` | (in dialog/subForm scripts) parent form's `data` object |
 | `selectedRow` | (in datatables) the currently selected row |
 | `event` | (event handlers) the underlying DOM/AntD event |
 | `value` | (onChange-style handlers) the new value |
+| `actionResponse` | (inside `onSuccess` of an action) the action's response. For `Sign In` this includes `actionResponse.url` (default landing route) |
+| `actionError` | (inside `onFail`) the error object: `actionError.response.data.error.message` / `.details` |
 
 **Forbidden globals** (technically present, but project house rule prohibits):
 - `globalState`, `setGlobalState` — superseded by `contexts.appContext`. See [shared-state.md](shared-state.md).
