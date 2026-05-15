@@ -56,6 +56,10 @@ Validation: when `dataSourceType === "values"`, each item in `values` is `{ id, 
 
 Same `dataSourceType` rules as `dropdown` (above). `radio` is single-select; `checkboxGroup` is multi-select.
 
+> **Shesha v8 radio gotcha — `items` vs `values`.** The `radio` component (only — `dropdown` and `checkboxGroup` are not affected) reads its options from **`items: [{ label, value }]`** in v8, not `values`. If you set only `values`, the radio renders an empty `.ant-radio-group` with no options. **Always set both when authoring a radio**: `items` (canonical for v8) AND `values` (kept for back-compat). Shape difference: `values[]` items need `{ id, label, value }`; `items[]` need only `{ label, value }`. `scripts/autofix.js` mirrors `values` → `items` when a radio has values but no items.
+>
+> Additionally, the radio (like `dropdown`) needs **fully populated `desktop` / `tablet` / `mobile` styling blocks** to render properly in v8 — empty `{}` causes the radio group to render with no children. The autofix script fills these with the input-styling defaults when a radio has empty breakpoint blocks. See [standards.md "Styling sanitiser"](../standards.md).
+
 ---
 
 ## refListStatus

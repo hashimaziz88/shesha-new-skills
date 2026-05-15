@@ -82,9 +82,24 @@ function walk(node, visit) {
 
 const SCRIPT_KEYS = [
   'onChangeCustom', 'onClickCustom', 'customVisibility', 'customEnabled',
-  'onSubmit', 'onBeforeDataLoad', 'onAfterDataLoad', 'getOptions',
-  'customSubmit', 'validator',
+  'onSubmit', 'onBeforeDataLoad', 'onAfterDataLoad', 'onPrepareSubmitData',
+  'onBeforeSubmit', 'onSubmitSuccess', 'onSubmitFailed',
+  'getOptions', 'customSubmit', 'validator',
+  'queryParams', 'dynamicEndpoint',
 ];
+
+// Extra walker that picks up scripts nested inside actionConfiguration trees
+// (actionArguments.expression, onSuccess.actionArguments.expression, onFail...).
+function visitActionScripts(node, ref, scriptRefs) {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node)) { node.forEach(n => visitActionScripts(n, ref, scriptRefs)); return; }
+  const expr = node.actionArguments && node.actionArguments.expression;
+  if (typeof expr === 'string' && expr.trim().length > 20) {
+    scriptRefs.push(`${ref}.${node.actionName ?? 'action'}.expression (${expr.length} chars)`);
+  }
+  if (node.onSuccess) visitActionScripts(node.onSuccess, `${ref}->onSuccess`, scriptRefs);
+  if (node.onFail) visitActionScripts(node.onFail, `${ref}->onFail`, scriptRefs);
+}
 
 const STRUCTURAL_TYPES = new Set(['container', 'card', 'columns', 'tabs', 'dataTableContext']);
 
@@ -106,6 +121,10 @@ function summarizeForm(form, name) {
         const ref = n.propertyName ?? n.componentName ?? (n.id || '').slice(0, 8);
         scriptRefs.push(`${ref}.${k} (${v.length} chars)`);
       }
+    }
+    if (n.actionConfiguration) {
+      const ref = n.propertyName ?? n.componentName ?? (n.id || '').slice(0, 8);
+      visitActionScripts(n.actionConfiguration, `${ref}.action`, scriptRefs);
     }
   }
 

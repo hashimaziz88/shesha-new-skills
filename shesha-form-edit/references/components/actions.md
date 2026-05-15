@@ -2,6 +2,12 @@
 
 All interactive — require `editMode: "editable"`.
 
+> **For chain shapes (delete-row, add-via-dialog, row-navigation, submit-then-navigate, sign-in, OTP, etc.) see [../action-chains.md](../action-chains.md).** That file is the canonical library; this file documents the per-component shell.
+
+> **Cardinal rule:** every `API Call` action MUST set `handleSuccess: true` AND `handleFail: true` and wire both `onSuccess` and `onFail` handlers. The MCP repeats this three times in its instructions — silent failures are the most common production bug.
+
+> **actionOwner inside a `dataTableContext`** must reference the context's **`id`** (not its `componentName`). When authoring by hand, you may write the `componentName` and let `scripts/autofix.js` rewrite the id during the autofix pass — see [../standards.md](../standards.md).
+
 ---
 
 ## button (single)

@@ -116,3 +116,15 @@ Variants: `textArea` (multiline), `passwordCombo` (password + confirm).
 `validator` is a JS expression (same script context as embedded scripts; see [scripts.md](scripts.md)) — must return truthy for valid. Invalid → AntD shows `validate.message`.
 
 For complex business rules across fields, use **FluentValidation** on the .NET side (see the `shesha-fluent-validators` skill in the shesha-developer plugin) rather than per-component validators. UI validators can't enforce server-side invariants reliably.
+
+### `validate.required` is the canonical shape
+
+Some legacy forms have `required: true` at the component root. Prefer `validate: { required: true }` (matches the MCP transformer's output and the AntD form runtime expectation). `scripts/autofix.js` normalises root-level `required: true` into `validate.required` automatically.
+
+### Regex escaping pitfall
+
+`validate.regExp` is a string that becomes a JS `RegExp`. Backslashes need single escaping for the regex but JSON requires double escaping. So `^\d{10}$` is written as `"^\\d{10}$"` in JSON, which the runtime then parses to `^\d{10}$`.
+
+### Date formats
+
+`dateField.dateFormat` (Shesha default `"DD/MM/YYYY"`) controls display. Internally the value is a moment object; serialise via `formSettings.onPrepareSubmitData` if the server expects ISO. For date-only fields, set `showTime: false`.
