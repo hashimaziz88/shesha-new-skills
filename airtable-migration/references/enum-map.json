@@ -1,0 +1,213 @@
+{
+  "_comment": "Maps Airtable singleSelect option names to Shesha enum integer values. null = no mapping (record will be null in Shesha). Add per-base overrides in migration-state/enum-overrides.json",
+
+  "status_general": {
+    "Todo":                   1,
+    "In progress":            2,
+    "In Progress":            2,
+    "Req Ready":              3,
+    "Req. Ready":             3,
+    "Req.Ready":              3,
+    "Ready for Testing":      4,
+    "Tested":                 3,
+    "Done":                   3,
+    "Active":                 4,
+    "In Production":          4,
+    "Archived":               5,
+    "Planned":                6,
+    "Cancelled":              7,
+    "Pre-existing Module":    4,
+    "Partially Implemented":  2,
+    "Fully Implemented":      3,
+    "Implemented":            3,
+    "Failed Testing":         8,
+    "Not Implemented":        9,
+    "Ready":                  3,
+    "_unmapped_note": "Req Ready→Done(3), Ready for Testing→Active(4), Tested→Done(3), In Production→Active(4). Failed Testing=8, Not Implemented=9 added as new enum values."
+  },
+
+  "release_status": {
+    "Todo":              1,
+    "In progress":       2,
+    "In Progress":       2,
+    "Req Ready":         2,
+    "Ready for Testing": 4,
+    "Tested":            4,
+    "In Production":     5,
+    "_shesha_values": "Planning=1, InProgress=2, Testing=3, ReadyForRelease=4, Released=5, Blocked=6"
+  },
+
+  "devops_status": {
+    "Created Manually":     1,
+    "Created Automatically":2,
+    "Not Created":          3,
+    "N/A":                  4,
+    "_shesha_values": "CreatedManually=1, CreatedAutomatically=2, NotCreated=3, NA=4"
+  },
+
+  "code_status": {
+    "Implemented Manually": 1,
+    "Code Generated":       2,
+    "Not Implemented":      3,
+    "N/A":                  4,
+    "_shesha_values": "ImplementedManually=1, CodeGenerated=2, NotImplemented=3, NA=4"
+  },
+
+  "licensing_model": {
+    "Open Source":    1,
+    "Commercial":     2,
+    "Boxfusion Only": 3,
+    "_shesha_values": "OpenSource=1, Commercial=2, BoxfusionOnly=3"
+  },
+
+  "view_type": {
+    "Table":         1,
+    "Custom (Table)":1,
+    "Details":       2,
+    "Create":        3,
+    "Custom (Form)": 3,
+    "QuickView":     2,
+    "Workflow":      8,
+    "Picker":        7,
+    "_shesha_values": "TableView=1, DetailsView=2, FormView=3, DashboardView=4, ReportView=5, ChartView=6, Picker=7, Workflow=8"
+  },
+
+  "mockup_status": {
+    "Todo":                      1,
+    "In Progress":               2,
+    "Ready":                     3,
+    "N/A - Self evident":        6,
+    "N/A - Screenshot provided": 3,
+    "_shesha_values": "NotStarted=1, InProgress=2, Complete=3, ApprovedByDesigner=4, ApprovedByClient=5, NaSelfEvident=6"
+  },
+
+  "entity_type": {
+    "Aggregate Root":  1,
+    "Entity":          1,
+    "DTO":             4,
+    "N/A":             null,
+    "Flattened Entity":5,
+    "_shesha_values": "DomainEntity=1, ValueObject=2, Enum=3, Dto=4, EmbeddedEntity=5"
+  },
+
+  "endpoint_type": {
+    "Create Resource":        1,
+    "Update Resource":        2,
+    "Get Resource":           3,
+    "Get List of Resources":  4,
+    "Execute Logic":          5,
+    "_shesha_values": "CreateResource=1, UpdateResource=2, GetResource=3, GetListOfResources=4, ExecuteLogic=5"
+  },
+
+  "request_type": {
+    "Route Only":    1,
+    "Query Params":  2,
+    "Dto":           3,
+    "_shesha_values": "RouteOnly=1, QueryParams=2, Dto=3"
+  },
+
+  "response_type": {
+    "List of DTOs":                  1,
+    "Single DTO in Response Wrapper":2,
+    "Single DTO":                    3,
+    "_shesha_values": "ListOfDtos=1, SingleDtoInResponseWrapper=2, SingleDto=3"
+  },
+
+  "http_method": {
+    "GET":    1,
+    "POST":   2,
+    "PUT":    3,
+    "DELETE": 4,
+    "PATCH":  5,
+    "_shesha_values": "Get=1, Post=2, Put=3, Delete=4, Patch=5, Head=6, Options=7"
+  },
+
+  "response_code": {
+    "200 OK":     1,
+    "200":        1,
+    "201 Created":2,
+    "201":        2,
+    "_shesha_values": "Ok200=1, Created201=2"
+  },
+
+  "job_type": {
+    "Bulk Notifications": 1,
+    "Bulk Data Update":   2,
+    "_shesha_values": "BulkNotifications=1, BulkDataUpdate=2"
+  },
+
+  "service_type": {
+    "Entity CRUD Service": 6,
+    "Custom Service":      7,
+    "_shesha_values": "Rest=1, Grpc=2, SignalR=3, GraphQL=4, MessageQueue=5, EntityCrud=6, Custom=7"
+  },
+
+  "config_type": {
+    "Module Settings":                    1,
+    "Order Uploading - Process Configs":  2,
+    "Order Uploading - Steps Configs":    3,
+    "Payments - Process Configs":         4,
+    "Payments - Steps Configs":           5,
+    "_shesha_values": "ModuleSettings=1, OrderUploadingProcessConfigs=2, OrderUploadingStepsConfigs=3, PaymentsProcessConfigs=4, PaymentsStepsConfigs=5"
+  },
+
+  "config_value_type": {
+    "String":         1,
+    "Integer":        2,
+    "Ref List":       3,
+    "Complex Object": 4,
+    "Bool":           5,
+    "Decimal":        6,
+    "_shesha_values": "String=1, Integer=2, RefList=3, ComplexObject=4, Bool=5, Decimal=6"
+  },
+
+  "report_type": {
+    "Table View":      1,
+    "Excel Download":  6,
+    "Pdf Report":      7,
+    "_shesha_values": "Grid=1, Chart=2, Summary=3, Pivot=4, TimeSeries=5, ExcelDownload=6, PdfReport=7"
+  },
+
+  "menu_level": {
+    "Level 1": 1,
+    "Level 2": 2,
+    "Level 3": 3,
+    "_shesha_values": "Root=1, Group=2, Item=3, SubItem=4"
+  },
+
+  "item_type": {
+    "Sub-menu":      2,
+    "Navigate":      1,
+    "Custom Action": 4,
+    "Separator":     3,
+    "N/A":           null,
+    "_shesha_values": "Link=1, Group=2, Separator=3, Button=4"
+  },
+
+  "requirement_type": {
+    "Bus Rule":        1,
+    "Question":        2,
+    "Mockup":          3,
+    "Internal Comment":4,
+    "Shesha Dependency":5,
+    "_shesha_values": "BusRule=1, Question=2, Mockup=3, InternalComment=4, SheshaDependency=5"
+  },
+
+  "crud_action": {
+    "N/A":      1,
+    "Disable":  2,
+    "Default":  3,
+    "Override": 4,
+    "_shesha_values": "NA=1, Disable=2, Default=3, Override=4"
+  },
+
+  "notification_mechanism": {
+    "Email":   1,
+    "SMS":     2,
+    "Push":    4,
+    "In App":  8,
+    "Webhook": 16,
+    "SignalR": 32,
+    "_shesha_values": "Email=1, Sms=2, Push=4, InApp=8, Webhook=16, SignalR=32 (bitflags — combine with bitwise OR)"
+  }
+}

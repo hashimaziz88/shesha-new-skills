@@ -1,0 +1,402 @@
+{
+  "_comment": "Canonical Airtable table/field → Shesha entity/property mapping. Per-run overrides live in migration-state/overrides.json",
+  "migration_order": [
+    "Projects", "Modules", "Releases", "Roles", "Entities",
+    "Services", "APIs", "Background Jobs", "Notifications",
+    "Config", "Reports", "Views", "View Reqs", "Other Reqs",
+    "Menu", "RefLists", "RefListItems"
+  ],
+  "tables": {
+    "Projects": {
+      "entity": "ProjectsDefinition",
+      "name_field": "Project Code",
+      "fields": {
+        "Project Code": { "shesha": "projectCode", "type": "text", "required": true },
+        "Description":  { "shesha": "description",  "type": "text" },
+        "Notes":        { "shesha": "notes",         "type": "text" },
+        "Status":       { "shesha": "status",        "type": "enum", "enum_ref": "status_general" }
+      },
+      "fk_fields": {},
+      "mm_fields": {}
+    },
+    "Modules": {
+      "entity": "ModuleDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":           { "shesha": "name",          "type": "text", "required": true },
+        "Fullname":       { "shesha": "fullname",       "type": "text" },
+        "Status":         { "shesha": "status",         "type": "enum", "enum_ref": "status_general" },
+        "Description":    { "shesha": "description",    "type": "text" },
+        "Has Front-End":  { "shesha": "hasFrontEnd",    "type": "bool" },
+        "Has Back-end":   { "shesha": "hasBackEnd",     "type": "bool" },
+        "Licensing Model":{ "shesha": "licensingModel", "type": "enum", "enum_ref": "licensing_model" },
+        "Namespace Root": { "shesha": "namespaceRoot",  "type": "text" },
+        "API url Prefix": { "shesha": "apiUrlPrefix",   "type": "text" },
+        "Url Segment":    { "shesha": "urlSegment",     "type": "text" },
+        "DB Prefix":      { "shesha": "dbPrefix",       "type": "text" },
+        "DevOps Board Url":{ "shesha": "devOpsBoardUrl","type": "text" },
+        "DevOps Area":    { "shesha": "devOpsArea",     "type": "text" }
+      },
+      "fk_fields": {},
+      "mm_fields": {
+        "Project":       { "shesha": "projects",    "target_table": "Projects", "junction": "ModuleDefinitionProject",    "j_this": "moduleDefinition", "j_other": "projectsDefinition" },
+        "Uses Modules":  { "shesha": "usedModules", "target_table": "Modules",  "junction": "ModuleDefinitionUsedModule", "j_this": "moduleDefinition", "j_other": "usedModule" }
+      }
+    },
+    "Releases": {
+      "entity": "ReleaseDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":             { "shesha": "name",            "type": "text", "required": true },
+        "Description":      { "shesha": "description",     "type": "text" },
+        "Is Client Release":{ "shesha": "isClientRelease", "type": "bool" },
+        "Status":           { "shesha": "status",          "type": "enum", "enum_ref": "release_status" },
+        "Target Date":      { "shesha": "targetDate",      "type": "date" }
+      },
+      "fk_fields": {},
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "ReleaseDefinitionProject", "j_this": "releaseDefinition", "j_other": "projectsDefinition" }
+      }
+    },
+    "Roles": {
+      "entity": "RoleDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":        { "shesha": "name",        "type": "text", "required": true },
+        "Status":      { "shesha": "status",      "type": "enum", "enum_ref": "status_general" },
+        "Description": { "shesha": "description", "type": "text" }
+      },
+      "fk_fields": {
+        "Module":  { "shesha": "module",  "target_table": "Modules" },
+        "Release": { "shesha": "release", "target_table": "Releases" }
+      },
+      "mm_fields": {
+        "Project":         { "shesha": "projects",          "target_table": "Projects",  "junction": "RoleDefinitionProject",    "j_this": "roleDefinition",  "j_other": "projectsDefinition" },
+        "Reference Entity":{ "shesha": "referenceEntities", "target_table": "Entities",  "junction": "RoleDefinitionRefEntity",  "j_this": "roleDefinition",  "j_other": "entityDefinition" },
+        "Included Roles":  { "shesha": "includedRoles",     "target_table": "Roles",     "junction": "RoleDefinitionIncludedRole","j_this": "roleDefinition",  "j_other": "includedRole" }
+      }
+    },
+    "Entities": {
+      "entity": "EntityDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":               { "shesha": "name",              "type": "text", "required": true },
+        "Status":             { "shesha": "status",            "type": "enum", "enum_ref": "status_general" },
+        "Description":        { "shesha": "description",       "type": "text" },
+        "Exists In DevOps":   { "shesha": "existsInDevOps",   "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":      { "shesha": "devOpsWiUrl",       "type": "text" },
+        "Type":               { "shesha": "type",              "type": "enum", "enum_ref": "entity_type" },
+        "Exists In Code":     { "shesha": "existsInCode",      "type": "enum", "enum_ref": "code_status" },
+        "Date Code Generated":{ "shesha": "dateCodeGenerated", "type": "date" },
+        "Requirements":       { "shesha": "requirements",      "type": "text" },
+        "Validation Rules":   { "shesha": "validationRules",   "type": "text" },
+        "Default Values":     { "shesha": "defaultValues",     "type": "text" },
+        "Protect From UI":    { "shesha": "protectFromUI",     "type": "text" },
+        "ShortAlias":         { "shesha": "shortAlias",        "type": "text" },
+        "Discriminator":      { "shesha": "discriminator",     "type": "text" }
+      },
+      "fk_fields": {
+        "Module":      { "shesha": "module",      "target_table": "Modules" },
+        "Release":     { "shesha": "release",     "target_table": "Releases" },
+        "Base Class":  { "shesha": "baseClass",   "target_table": "Entities" },
+        "Theme Entity":{ "shesha": "themeEntity", "target_table": "Entities" }
+      },
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "EntityDefinitionProject", "j_this": "entityDefinition", "j_other": "projectsDefinition" }
+      }
+    },
+    "Services": {
+      "entity": "ServiceDefinition",
+      "name_field": "Custom Service Name",
+      "fields": {
+        "Name":                 { "shesha": "name",                "type": "text" },
+        "Status":               { "shesha": "status",              "type": "enum", "enum_ref": "status_general" },
+        "Type":                 { "shesha": "serviceType",         "type": "enum", "enum_ref": "service_type" },
+        "Description":          { "shesha": "description",         "type": "text" },
+        "Exists In DevOps":     { "shesha": "existsInDevOps",      "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":        { "shesha": "devOpsWiUrl",         "type": "text" },
+        "Exists In Code":       { "shesha": "existsInCode",        "type": "enum", "enum_ref": "code_status" },
+        "Date Code Generated":  { "shesha": "dateCodeGenerated",   "type": "date" },
+        "Create":               { "shesha": "create",              "type": "enum", "enum_ref": "crud_action" },
+        "Get":                  { "shesha": "get",                 "type": "enum", "enum_ref": "crud_action" },
+        "Query List":           { "shesha": "queryList",           "type": "enum", "enum_ref": "crud_action" },
+        "Update":               { "shesha": "update",              "type": "enum", "enum_ref": "crud_action" },
+        "Query Flattened List": { "shesha": "queryFlattenedList",  "type": "enum", "enum_ref": "crud_action" },
+        "Custom Service Name":  { "shesha": "customServiceName",   "type": "text" }
+      },
+      "fk_fields": {
+        "Module":           { "shesha": "module",          "target_table": "Modules" },
+        "Release":          { "shesha": "release",         "target_table": "Releases" },
+        "CRUD Entity":      { "shesha": "crudEntity",      "target_table": "Entities" },
+        "Flattened Entity": { "shesha": "flattenedEntity", "target_table": "Entities" }
+      },
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "ServiceDefinitionProject", "j_this": "serviceDefinition", "j_other": "projectsDefinition" }
+      }
+    },
+    "APIs": {
+      "entity": "ApiDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":                       { "shesha": "name",                     "type": "text", "required": true },
+        "Status":                     { "shesha": "status",                   "type": "enum", "enum_ref": "status_general" },
+        "Endpoint Type":              { "shesha": "endpointType",             "type": "enum", "enum_ref": "endpoint_type" },
+        "Description":                { "shesha": "description",              "type": "text" },
+        "Url":                        { "shesha": "url",                      "type": "text" },
+        "Request Type":               { "shesha": "requestType",              "type": "enum", "enum_ref": "request_type" },
+        "Request":                    { "shesha": "request",                  "type": "text" },
+        "Response Type":              { "shesha": "responseType",             "type": "enum", "enum_ref": "response_type" },
+        "Other Standard Restrictions":{ "shesha": "otherStandardRestrictions","type": "multiselect_text" },
+        "Security Requirements":      { "shesha": "securityRequirements",     "type": "text" },
+        "Checks Before Execution":    { "shesha": "checksBeforeExecution",    "type": "text" },
+        "Business Logic":             { "shesha": "businessLogic",            "type": "text" },
+        "Exist In DevOps":            { "shesha": "existsInDevOps",           "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":              { "shesha": "devOpsWiUrl",              "type": "text" },
+        "Http Action":                { "shesha": "httpAction",               "type": "enum", "enum_ref": "http_method" },
+        "Response Code":              { "shesha": "responseCode",             "type": "enum", "enum_ref": "response_code" }
+      },
+      "fk_fields": {
+        "Module":              { "shesha": "module",           "target_table": "Modules" },
+        "Release":             { "shesha": "release",          "target_table": "Releases" },
+        "Service to Build on": { "shesha": "serviceToBuildOn","target_table": "Services" },
+        "Request DTO":         { "shesha": "requestEntity",   "target_table": "Entities" },
+        "Response DTO":        { "shesha": "responseEntity",  "target_table": "Entities" }
+      },
+      "mm_fields": {
+        "Project":        { "shesha": "projects",          "target_table": "Projects",    "junction": "ApiDefinitionProject",          "j_this": "apiDefinition",  "j_other": "projectsDefinition" },
+        "Required Roles": { "shesha": "requiredRoles",     "target_table": "Roles",       "junction": "ApiDefinitionRequiredRole",     "j_this": "apiDefinition",  "j_other": "roleDefinition" },
+        "Uses Other Reqs":{ "shesha": "otherRequirements", "target_table": "Other Reqs",  "junction": "ApiDefinitionOtherRequirement", "j_this": "apiDefinition",  "j_other": "otherRequirement" }
+      }
+    },
+    "Background Jobs": {
+      "entity": "BackgroundJobDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":        { "shesha": "name",        "type": "text", "required": true },
+        "Status":      { "shesha": "status",      "type": "enum", "enum_ref": "status_general" },
+        "Type":        { "shesha": "jobType",     "type": "enum", "enum_ref": "job_type" },
+        "Description": { "shesha": "description", "type": "text" },
+        "Exists In DevOps": { "shesha": "existsInDevOps", "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":    { "shesha": "devOpsWiUrl",    "type": "text" }
+      },
+      "fk_fields": {
+        "Module":  { "shesha": "module",  "target_table": "Modules" },
+        "Release": { "shesha": "release", "target_table": "Releases" }
+      },
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "BackgroundJobDefinitionProject", "j_this": "backgroundJobDefinition", "j_other": "projectsDefinition" }
+      }
+    },
+    "Notifications": {
+      "entity": "NotificationDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":                { "shesha": "name",               "type": "text", "required": true },
+        "Status":              { "shesha": "status",             "type": "enum", "enum_ref": "status_general" },
+        "Description":         { "shesha": "description",        "type": "text" },
+        "Mechanism":           { "shesha": "mechanism",          "type": "multiselect_enum", "enum_ref": "notification_mechanism" },
+        "Template":            { "shesha": "template",           "type": "text" },
+        "Triggering Schedule": { "shesha": "triggeringSchedule", "type": "text" },
+        "Exists In DevOps":    { "shesha": "existsInDevOps",     "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":       { "shesha": "devOpsWiUrl",        "type": "text" }
+      },
+      "fk_fields": {
+        "Module":  { "shesha": "module",  "target_table": "Modules" },
+        "Release": { "shesha": "release", "target_table": "Releases" }
+      },
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "NotificationDefinitionProject", "j_this": "notificationDefinition", "j_other": "projectsDefinition" }
+      }
+    },
+    "Config": {
+      "entity": "ConfigDefinition",
+      "name_field": "Setting Name",
+      "fields": {
+        "Setting Name":        { "shesha": "name",              "type": "text", "required": true },
+        "Configuration Type":  { "shesha": "configurationType", "type": "enum", "enum_ref": "config_type" },
+        "Panel Name":          { "shesha": "panelName",         "type": "text" },
+        "Status":              { "shesha": "status",            "type": "enum", "enum_ref": "status_general" },
+        "Type":                { "shesha": "valueType",         "type": "enum", "enum_ref": "config_value_type" },
+        "Description":         { "shesha": "description",       "type": "text" },
+        "Default Value":       { "shesha": "defaultValue",      "type": "text" },
+        "Logic / Requirements":{ "shesha": "requirements",      "type": "text" },
+        "Exists In DevOps":    { "shesha": "existsInDevOps",    "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":       { "shesha": "devOpsWiUrl",       "type": "text" }
+      },
+      "fk_fields": {
+        "Module":  { "shesha": "module",  "target_table": "Modules" },
+        "Release": { "shesha": "release", "target_table": "Releases" }
+      },
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "ConfigDefinitionProject", "j_this": "configDefinition", "j_other": "projectsDefinition" }
+      }
+    },
+    "Reports": {
+      "entity": "ReportDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":               { "shesha": "name",            "type": "text", "required": true },
+        "Status":             { "shesha": "status",          "type": "enum", "enum_ref": "status_general" },
+        "Type":               { "shesha": "reportType",      "type": "enum", "enum_ref": "report_type" },
+        "Description":        { "shesha": "description",     "type": "text" },
+        "Exists In DevOps":   { "shesha": "existsInDevOps",  "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":      { "shesha": "devOpsWiUrl",     "type": "text" }
+      },
+      "fk_fields": {
+        "Module":        { "shesha": "module",        "target_table": "Modules" },
+        "Release":       { "shesha": "release",       "target_table": "Releases" },
+        "Central Entity":{ "shesha": "centralEntity", "target_table": "Entities" }
+      },
+      "mm_fields": {
+        "Project":       { "shesha": "projects",      "target_table": "Projects", "junction": "ReportDefinitionProject",      "j_this": "reportDefinition", "j_other": "projectsDefinition" },
+        "Allowed Roles": { "shesha": "allowedRoles",  "target_table": "Roles",    "junction": "ReportDefinitionAllowedRole",  "j_this": "reportDefinition", "j_other": "roleDefinition" }
+      }
+    },
+    "Views": {
+      "entity": "ViewDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":            { "shesha": "name",          "type": "text", "required": true },
+        "Status":          { "shesha": "status",        "type": "enum", "enum_ref": "status_general" },
+        "Sequence":        { "shesha": "sequence",      "type": "number" },
+        "View Type":       { "shesha": "viewType",      "type": "enum", "enum_ref": "view_type" },
+        "Description":     { "shesha": "description",   "type": "text" },
+        "Mockup Status":   { "shesha": "mockupStatus",  "type": "enum", "enum_ref": "mockup_status" },
+        "Mockup":          { "shesha": "mockupUrl",     "type": "text" },
+        "Custom Name":     { "shesha": "customName",    "type": "text" },
+        "Exists In DevOps":{ "shesha": "existsInDevOps","type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":   { "shesha": "devOpsWiUrl",   "type": "text" },
+        "Notes":           { "shesha": "notes",         "type": "text" },
+        "View Url":        { "shesha": "viewUrl",       "type": "text" }
+      },
+      "fk_fields": {
+        "Module":         { "shesha": "module",        "target_table": "Modules" },
+        "Release":        { "shesha": "release",       "target_table": "Releases" },
+        "Central Entity": { "shesha": "centralEntity", "target_table": "Entities" }
+      },
+      "mm_fields": {
+        "Project":               { "shesha": "projects",      "target_table": "Projects",  "junction": "ViewDefinitionProject",       "j_this": "viewDefinition", "j_other": "projectsDefinition" },
+        "Required APIs":         { "shesha": "requiredApis",  "target_table": "APIs",      "junction": "ViewDefinitionRequiredApi",   "j_this": "viewDefinition", "j_other": "apiDefinition" },
+        "Required Roles":        { "shesha": "requiredRoles", "target_table": "Roles",     "junction": "ViewDefinitionRequiredRole",  "j_this": "viewDefinition", "j_other": "roleDefinition" },
+        "Config":                { "shesha": "configs",       "target_table": "Config",    "junction": "ViewDefinitionConfig",        "j_this": "viewDefinition", "j_other": "configDefinition" },
+        "Uses Other Reqs":       { "shesha": "otherRequirements","target_table": "Other Reqs","junction": "ViewDefinitionOtherRequirement","j_this": "viewDefinition","j_other": "otherRequirement" }
+      }
+    },
+    "View Reqs": {
+      "entity": "ViewRequirement",
+      "name_field": "Requirement",
+      "fields": {
+        "Status":          { "shesha": "status", "type": "enum", "enum_ref": "status_general" },
+        "Type":            { "shesha": "type",   "type": "enum", "enum_ref": "requirement_type" },
+        "Requirement":     { "shesha": "requirement",    "type": "text" },
+        "Exists In DevOps":{ "shesha": "existsInDevOps", "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":   { "shesha": "devOpsWiUrl",    "type": "text" }
+      },
+      "fk_fields": {
+        "Release":     { "shesha": "release",     "target_table": "Releases" },
+        "Parent View": { "shesha": "parentView",  "target_table": "Views" }
+      },
+      "mm_fields": {
+        "Project":             { "shesha": "projects",       "target_table": "Projects",       "junction": "ViewRequirementProject",              "j_this": "viewRequirement", "j_other": "projectsDefinition" },
+        "Uses APIs":           { "shesha": "usedApis",       "target_table": "APIs",           "junction": "ViewRequirementUsedApi",              "j_this": "viewRequirement", "j_other": "apiDefinition" },
+        "Uses Views":          { "shesha": "usedViews",      "target_table": "Views",          "junction": "ViewRequirementUsedView",             "j_this": "viewRequirement", "j_other": "viewDefinition" },
+        "Uses Config":         { "shesha": "usedConfigs",    "target_table": "Config",         "junction": "ViewRequirementUsedConfig",           "j_this": "viewRequirement", "j_other": "configDefinition" },
+        "Uses Notifications":  { "shesha": "usedNotifications","target_table": "Notifications","junction": "ViewRequirementUsedNotification",     "j_this": "viewRequirement", "j_other": "notificationDefinition" },
+        "Uses Other Reqs":     { "shesha": "otherRequirements","target_table": "Other Reqs",   "junction": "ViewRequirementOtherRequirement",     "j_this": "viewRequirement", "j_other": "otherRequirement" }
+      }
+    },
+    "Other Reqs": {
+      "entity": "OtherRequirement",
+      "name_field": "Name",
+      "fields": {
+        "Name":            { "shesha": "name",   "type": "text", "required": true },
+        "Status":          { "shesha": "status", "type": "enum", "enum_ref": "status_general" },
+        "Type":            { "shesha": "type",   "type": "enum", "enum_ref": "requirement_type" },
+        "Requirement":     { "shesha": "requirement",     "type": "text" },
+        "Exists In DevOps":{ "shesha": "existsInDevOps",  "type": "enum", "enum_ref": "devops_status" },
+        "DevOps WI Url":   { "shesha": "devOpsWiUrl",     "type": "text" }
+      },
+      "fk_fields": {
+        "Module":  { "shesha": "module",  "target_table": "Modules" },
+        "Release": { "shesha": "release", "target_table": "Releases" }
+      },
+      "mm_fields": {
+        "Project": { "shesha": "projects", "target_table": "Projects", "junction": "OtherRequirementProject", "j_this": "otherRequirement", "j_other": "projectsDefinition" }
+      }
+    },
+    "Menu": {
+      "entity": "MenuDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":                       { "shesha": "name",                      "type": "text", "required": true },
+        "Status":                     { "shesha": "status",                    "type": "enum", "enum_ref": "status_general" },
+        "Menu Level":                 { "shesha": "menuLevel",                 "type": "enum", "enum_ref": "menu_level" },
+        "Item Type":                  { "shesha": "itemType",                  "type": "enum", "enum_ref": "item_type" },
+        "Order Index":                { "shesha": "orderIndex",                "type": "number" },
+        "Additional Security Comments":{ "shesha": "additionalSecurityComments","type": "text" },
+        "Notes":                      { "shesha": "notes",                     "type": "text" }
+      },
+      "fk_fields": {
+        "Parent":         { "shesha": "parent",        "target_table": "Menu" },
+        "View to Link to":{ "shesha": "linkedView",    "target_table": "Views" }
+      },
+      "mm_fields": {
+        "Project":          { "shesha": "projects",         "target_table": "Projects", "junction": "MenuDefinitionProject",   "j_this": "menuDefinition", "j_other": "projectsDefinition" },
+        "Roles with Access":{ "shesha": "rolesWithAccess",  "target_table": "Roles",    "junction": "MenuDefinitionRole",      "j_this": "menuDefinition", "j_other": "roleDefinition" }
+      }
+    },
+    "RefLists": {
+      "entity": "RefListDefinition",
+      "name_field": "Name",
+      "fields": {
+        "Name":               { "shesha": "name",              "type": "text", "required": true },
+        "Status":             { "shesha": "status",            "type": "enum", "enum_ref": "status_general" },
+        "Description":        { "shesha": "description",       "type": "text" },
+        "Notes":              { "shesha": "notes",             "type": "text" },
+        "Should be Hardcoded":{ "shesha": "shouldBeHardcoded", "type": "bool" },
+        "Is Multi Value":     { "shesha": "isMultiValue",      "type": "bool" }
+      },
+      "fk_fields": {
+        "Module": { "shesha": "module", "target_table": "Modules" }
+      },
+      "mm_fields": {}
+    },
+    "RefListItems": {
+      "entity": "RefListItemDefinition",
+      "name_field": "Item",
+      "fields": {
+        "Name":        { "shesha": "name",        "type": "text" },
+        "Item":        { "shesha": "item",        "type": "text", "required": true },
+        "Code":        { "shesha": "code",        "type": "text" },
+        "Description": { "shesha": "description", "type": "text" },
+        "ItemValue":   { "shesha": "itemValue",   "type": "number" },
+        "OrderIndex":  { "shesha": "orderIndex",  "type": "number" },
+        "ShortAlias":  { "shesha": "shortAlias",  "type": "text" }
+      },
+      "fk_fields": {
+        "RefList": { "shesha": "refList", "target_table": "RefLists" }
+      },
+      "mm_fields": {}
+    }
+  },
+  "skip_field_types": ["formula", "multipleLookupValues", "autoNumber", "multipleAttachments", "singleCollaborator", "multipleCollaborators"],
+  "skip_fields_by_table": {
+    "Projects":  ["Attachments", "Modules", "Releases", "Views", "View Reqs", "Roles", "Menu", "Entities", "Services", "APIs", "Background Jobs", "Notifications", "Config", "Reports", "Other Reqs"],
+    "Modules":   ["Entities in Module", "Views in Module", "APIs in Module", "Roles in Module", "Background Jobs in Module", "Notifications in Module", "Reports in Module", "Other Reqs in Module", "Configs in Module", "Entities copy", "RefLists", "Services"],
+    "Releases":  ["Views", "View Reqs", "APIs", "Other Reqs", "Entities", "Background Jobs", "Notifications", "Config", "Reports", "Roles", "Entities copy"],
+    "Roles":     ["Views", "Reports", "APIs", "Menu"],
+    "Entities":  ["Used by Views", "Used by APIs Response", "Used by APIs Request", "Roles", "Used by Reports", "Exposed by Service", "Queried by Service"],
+    "Services":  ["Custom End points"],
+    "APIs":      ["Used by Views", "Used by View Reqs"],
+    "Background Jobs": ["Uses Notification Templates", "Uses Configs", "Uses Other Reqs", "Logic / Requirements", "Triggering Schedule"],
+    "Notifications":   ["Used by Background Jobs", "Used by View Reqs"],
+    "Config":    ["Used by Background Job", "Used by View Reqs", "Views"],
+    "Reports":   ["Entities copy", "Report Filters", "Report Layout", "Data Filtering Logic"],
+    "Views":     ["Detailed Requirements", "Menu", "Used by View Reqs", "Entities copy", "Field 25"],
+    "View Reqs": ["Separate DevOps Card"],
+    "Other Reqs":["Used by Views", "Used by View Reqs", "Used by APIs", "Used by Background Jobs"],
+    "Menu":      ["Release (from View to Link to)", "Required Roles (from View to Link to)", "Menu Path", "Parent Menu Name", "Parent Menu Level", "Grand Parent Menu", "Grand Parent Menu Type"],
+    "RefLists":  ["RefListItems"],
+    "RefListItems": ["Status"]
+  }
+}
