@@ -2,11 +2,6 @@
 
 All curl recipes assume `$BASE_URL` and `$ACCESS_TOKEN` are set. On Windows, substitute `%BASE_URL%`/`%ACCESS_TOKEN%` for cmd or `$env:BASE_URL`/`$env:ACCESS_TOKEN` for PowerShell.
 
-> **Routing namespace varies by Shesha build.** Always probe before assuming:
-> - `FormConfiguration/*`, `Metadata/*`, `ReferenceList/*` consistently live under `/api/services/Shesha/`.
-> - `Module/*`, `User/*`, `EntityConfig/*`, `Session/*` may live under `/api/services/app/` OR `/api/services/Shesha/` depending on the build.
-> - If a 404 hits, swap `Shesha` ↔ `app` before assuming the endpoint doesn't exist. See [debug.md](debug.md) row 33.
-
 ---
 
 ## 1. Resolve base URL
@@ -220,37 +215,7 @@ curl -s -X POST "$BASE_URL/api/services/Shesha/FormConfiguration/Create" \
   }'
 ```
 
-To resolve `moduleId`, query `GET /api/services/Shesha/Module/GetAll` with bearer token and pick the module by `name`. Check `isEnabled === true` and `isEditable === true` before attempting any write — see [resolve.md](resolve.md). Form creation will fail server-side if either is false.
-
-### 7a. Resolve module by name (with preflight)
-
-```bash
-curl -s -G "$BASE_URL/api/services/Shesha/Module/GetAll" \
-  --data-urlencode "MaxResultCount=500" \
-  -H "Authorization: Bearer $ACCESS_TOKEN"
-```
-
-Returns `result.items[]` with `{ id, name, friendlyName, isEnabled, isEditable, ... }`. Match by exact `name`, then check both preflight booleans before proceeding.
-
-### 7b. Resolve entity full-name from short name
-
-```bash
-curl -s -G "$BASE_URL/api/services/app/EntityConfig/GetAll" \
-  --data-urlencode "MaxResultCount=500" \
-  -H "Authorization: Bearer $ACCESS_TOKEN"
-```
-
-Returns `result.items[]` with `{ id, className, namespace, fullClassName, module: { name } }`. Match by `className` (case-insensitive). Cache the response per backend host (TTL 24h).
-
-### 7c. List reference lists (for dropdown / radio / checkboxGroup)
-
-```bash
-curl -s -G "$BASE_URL/api/services/Shesha/ReferenceList/GetAll" \
-  --data-urlencode "MaxResultCount=500" \
-  -H "Authorization: Bearer $ACCESS_TOKEN"
-```
-
-Returns `result.items[]` with `{ id, name, module: { name } }`. Required for validating `referenceListId: { name, module }` shape on dropdown-family components.
+To resolve `moduleId`, query `GET /api/services/Shesha/Module/GetAll` with bearer token and pick the module by `name`.
 
 ---
 
@@ -266,19 +231,6 @@ curl -s -G "$BASE_URL/api/services/Shesha/FormConfiguration/GetAll" \
 ```
 
 Returns `result.items[]` with `{ id, name, label, module: {...} }`.
-
-### 8a. Search forms by suffix / fuzzy name (complementary-form discovery)
-
-For finding `{entity}-details*`, `{entity}-create*`, etc. — used by [templates.md](templates.md) and [resolve.md](resolve.md):
-
-```bash
-# Suffix-tolerant: name LIKE 'member-details%'
-curl -s -G "$BASE_URL/api/services/Shesha/FormConfiguration/GetAll" \
-  --data-urlencode 'Filter={"and":[{"==":[{"var":"module.name"},"PBF.MembershipManagement"]},{"like":[{"var":"name"},"member-details%"]}]}' \
-  -H "Authorization: Bearer $ACCESS_TOKEN"
-```
-
-Pick the candidate without an `additional-descriptor` first (e.g. `member-details` beats `member-details-for-mvp`). Rank by suffix-exactness first, then by similarity to the user's hint.
 
 ---
 
@@ -384,33 +336,14 @@ Step 9 of the skill. Invoke as:
 Skill(skill="playwright", args="<directive>")
 ```
 
-### Authentication: log in via the form, NOT via localStorage injection
-
-> **Do not** try to inject `accessToken` into `localStorage` before navigating. Most Shesha builds wire auth through the **`auth-login`** form's `Sign In` action which sets multiple storage keys (token + refresh token + user descriptor) AND triggers a `Session/GetCurrentLoginInformations` bootstrap. Hand-setting one key leaves the SPA stuck on `Initializing…`.
-
-**Correct flow** for any `/dynamic/...` route:
-
-1. Navigate to **`<FRONTEND_URL>/login`** (most projects have this as a redirect → `/no-auth/<module>/auth-login`). If `/login` 404s, fall back to the explicit `/no-auth/<module>/auth-login` for the project's module.
-2. Fill the email + password inputs with the project's test credentials (default `admin@shesha.io` / `123qwe` — but see "Credential gotcha" below).
-3. Click the form's submit button (typically `button:has-text("Login")` or `button[type="submit"]`).
-4. Wait for redirect OFF the login route (`waitForFunction(() => !location.pathname.includes('auth-login') && !location.pathname.includes('/login'))`).
-5. Now navigate to the target `/dynamic/...` form.
-
-**Credential gotcha:** the Shesha backend's `TokenAuth/Authenticate` accepts a `userName` (e.g. `admin`) OR an email. The frontend `auth-login` form may bind to a property called `userNameOrEmailAddress` but render an `Email address` input with **client-side email-regex validation** that rejects bare usernames. Always pass an email format. The default admin in most local-dev Sheshas has an email like `admin@shesha.io` — confirm by querying `User/GetAll` and reading the row with `roleNames` containing `ADMIN`. If that user has `emailAddress: null`, ask the user for working test credentials rather than guessing.
-
 ### Directive template
 
-> Open `<FRONTEND_URL>/<TARGET_PATH>` in a fresh browser context.
-> If `<TARGET_PATH>` starts with `/dynamic/...`, **log in first**:
->   - Navigate to `<FRONTEND_URL>/login` (fall back to `/no-auth/<module>/auth-login`).
->   - Wait for the email input to render. Fill `admin@shesha.io` / `123qwe` (or the credentials the user provided).
->   - Click the submit button. Wait until `location.pathname` no longer contains `auth-login` or `/login`.
-> If `<TARGET_PATH>` starts with `/no-auth/...`, no login needed.
-> Set any required preconditions (e.g. `localStorage.selectedTier = "<id>"`) AFTER login but BEFORE navigating to the target form.
-> Navigate to the target. Wait for `.sha-form` selector or 5s timeout.
-> Capture: full-page screenshot, all console messages level `error` or `warning`, all network responses with `status >= 400`.
+> Open `<FRONTEND_URL>/<no-auth|dynamic>/<MODULE>/<FORM_NAME>` in a fresh browser context.
+> If path is `/dynamic/...`: first POST `/api/TokenAuth/Authenticate` with `admin`/`123qwe` and set the resulting token in `localStorage.accessToken` before navigating.
+> Wait for the form to render (selector `.sha-form` or 5s timeout, whichever comes first).
+> Capture: full-page screenshot, all console messages with level `error` or `warning`, all network responses with `status >= 400`.
 > Then click the primary action button (if any) and capture again.
-> Report: a one-paragraph summary, screenshot paths, and any captured errors / 4xx-5xx network responses verbatim.
+> Report: a one-paragraph summary, the screenshot path, and any captured errors / 4xx-5xx network responses verbatim.
 
 ### Frontend URL detection
 

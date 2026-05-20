@@ -82,32 +82,7 @@ The `Create` endpoint may not honour `access` on initial create. After `POST /Cr
 
 ---
 
-## `formSettings` deep dive
-
-| Field | Type | Notes |
-|---|---|---|
-| `modelType` | string | Entity full namespace. Empty for non-entity-bound forms (dashboards, settings). |
-| `dataLoaderType` | `"gql" \| "entity" \| "custom" \| "none"` | `"gql"` is the modern default for entity forms; `"none"` skips data loading entirely (dashboards, login). |
-| `dataSubmitterType` | same enum | Set to `"none"` when the form's submit goes through custom buttons / API calls. |
-| `dataLoadersSettings` | object | Per-loader-type config. `{ gql: { endpointType: "default" } }` is the standard. |
-| `dataSubmittersSettings` | object | Same shape. The default `dynamicEndpoint` is `"    return data?.id ? form.defaultApiEndpoints.update : form.defaultApiEndpoints.create"`. |
-| `layout` | `"horizontal" \| "vertical" \| "inline"` | `"horizontal"` (default). Avoid `"inline"`. |
-| `labelCol` / `wrapperCol` | `{ span: number }` | AntD column grid for label vs input. Default `{ span: 8 } / { span: 16 }`. |
-| `colon` | bool | Whether labels render with trailing `:`. |
-| `size` | `"small" \| "middle" \| "large"` | Component density. |
-| `access` | int | `3` = authenticated (default); `5` = anonymous (`/no-auth/...`). See above. |
-| `permissions` | string[] | Permission names; ALL must be granted for the user to view the form. |
-| `version` | int | Schema version. MCP default `7`. Don't lower. |
-| `onBeforeDataLoad` / `onAfterDataLoad` / `onPrepareSubmitData` / `onBeforeSubmit` / `onSubmitSuccess` / `onSubmitFailed` | string (JS body) | Lifecycle hooks. See [../lifecycle.md](../lifecycle.md). |
-
-### Form record metadata (NOT formSettings)
-
-`module`, `name`, `type`, `frontEnd`, `label`, `description`, `versionNo`, `versionStatus` live on the form **record** (the `FormConfigurationDto` envelope) — not in markup. Don't include them in `formSettings`.
-
-`versionStatus` enum: `1=Draft, 2=ReadyForReview, 3=Live, 4=Retired`. UpdateMarkup is permitted in any state, but tools that publish forms to production should be checked against the lifecycle.
-
 ## When in doubt
 
 - The authoritative valid-keys-per-type list is `assets/component-properties.json`. If you're about to write a key that isn't there, you're probably wrong.
-- For component-defaults to mirror the MCP transformer output, see `assets/component-defaults.json`.
 - For component types not covered in any reference file (kanban, charts, queryBuilder, themeEditor, mainMenuEditor, processMonitor, kpi-style cards), inspect an existing form that uses them — the designer's output is canonical.
