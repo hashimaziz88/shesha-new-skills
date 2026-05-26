@@ -78,6 +78,7 @@ Read **only** the topic files relevant to the edit. Most edits need 1–3 files:
 | Embedded scripts, current user, async/try-catch | [references/components/scripts.md](references/components/scripts.md) |
 | Shared state (appContext, pageContext) | [references/components/shared-state.md](references/components/shared-state.md) |
 | editMode, visibility, permissions | [references/components/edit-mode.md](references/components/edit-mode.md) |
+| v7 styling system (containers, borders, fonts, shadows, migration) | [references/components/styling-v7.md](references/components/styling-v7.md) |
 | Layout pattern (full-page forms, auth) | [references/components/layout.md](references/components/layout.md) |
 
 **Seed discovery for new forms** (in this order):
