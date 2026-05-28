@@ -1,0 +1,45 @@
+{
+  "template": "details",
+  "name": "crm-opportunity-details",
+  "label": "Opportunity Details",
+  "moduleName": "A.Test",
+  "modelType": "Shesha.Domain.Note",
+  "fields": [
+    {
+      "type": "section",
+      "label": "Opportunity Information",
+      "components": [
+        { "propertyName": "noteText", "type": "textArea", "label": "Description / Summary" },
+        {
+          "propertyName": "stage",
+          "type": "dropdown",
+          "label": "Stage",
+          "dataSourceType": "referenceList",
+          "referenceListId": { "module": "A.Test", "name": "OpportunityStage" }
+        },
+        {
+          "propertyName": "priority",
+          "type": "dropdown",
+          "label": "Priority",
+          "dataSourceType": "referenceList",
+          "referenceListId": { "module": "A.Test", "name": "OpportunityPriority" }
+        },
+        {
+          "propertyName": "type",
+          "type": "dropdown",
+          "label": "Type",
+          "dataSourceType": "referenceList",
+          "referenceListId": { "module": "A.Test", "name": "OpportunityType" }
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "label": "Financials",
+      "components": [
+        { "propertyName": "amount", "type": "numberField", "label": "Expected Revenue", "prefix": "R " },
+        { "propertyName": "probability", "type": "numberField", "label": "Probability (%)", "suffix": "%" }
+      ]
+    }
+  ]
+}

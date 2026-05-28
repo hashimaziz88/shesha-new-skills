@@ -1,0 +1,74 @@
+{
+  "module": "A.Test",
+  "forms": [
+    {
+      "template": "dashboard-departmental",
+      "name": "crm-dashboard",
+      "label": "CRM Overview",
+      "folder": "CRM"
+    },
+    {
+      "template": "table",
+      "entity": "Person",
+      "name": "crm-leads-table",
+      "label": "Leads & Customers",
+      "folder": "CRM/Leads"
+    },
+    {
+      "template": "details",
+      "entity": "Person",
+      "name": "crm-lead-details",
+      "label": "Lead Details",
+      "folder": "CRM/Leads"
+    },
+    {
+      "template": "create",
+      "entity": "Person",
+      "name": "crm-lead-create",
+      "label": "Add New Lead",
+      "folder": "CRM/Leads"
+    },
+    {
+      "template": "table",
+      "entity": "Organisation",
+      "name": "crm-companies-table",
+      "label": "Companies",
+      "folder": "CRM/Companies"
+    },
+    {
+      "template": "details",
+      "entity": "Organisation",
+      "name": "crm-company-details",
+      "label": "Company Details",
+      "folder": "CRM/Companies"
+    },
+    {
+      "template": "create",
+      "entity": "Organisation",
+      "name": "crm-company-create",
+      "label": "Add New Company",
+      "folder": "CRM/Companies"
+    },
+    {
+      "template": "table",
+      "entity": "Note",
+      "name": "crm-activities-table",
+      "label": "Activities",
+      "folder": "CRM/Activities"
+    },
+    {
+      "template": "details",
+      "entity": "Note",
+      "name": "crm-activity-details",
+      "label": "Activity Details",
+      "folder": "CRM/Activities"
+    },
+    {
+      "template": "create",
+      "entity": "Note",
+      "name": "crm-activity-create",
+      "label": "Log Activity",
+      "folder": "CRM/Activities"
+    }
+  ]
+}

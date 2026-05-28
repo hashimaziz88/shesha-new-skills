@@ -22,7 +22,7 @@
  *     [--push]                             # default: dry-run, prints rendered markup to stdout
  *     [--out=<path>]                       # also write rendered markup to disk
  *     [--no-verify]                        # skip post-push re-fetch / diff
- *     [--strict]                           # treat validate.js warnings as errors
+ *     [--strict]                           # treat validate.cjs warnings as errors
  *     [--debug]                            # verbose HTTP logging
  *
  * Exit codes:
@@ -39,11 +39,11 @@ const https = require('https');
 const { spawnSync } = require('child_process');
 const { URL } = require('url');
 
-const componentsIndex = require('./components-index.js');
-const enrich = require('./enrich.js');
-const layoutPolish = require('./layout-polish.js');
-const styler = require('./styler.js');
-const pluralize = require('./pluralize.js');
+const componentsIndex = require('./components-index.cjs');
+const enrich = require('./enrich.cjs');
+const layoutPolish = require('./layout-polish.cjs');
+const styler = require('./styler.cjs');
+const pluralize = require('./pluralize.cjs');
 
 // ---------------- CLI parsing ----------------
 
@@ -338,7 +338,7 @@ function propToComponent(prop, parentId, moduleName) {
   if (prop.referenceListName) {
     // Backend stores names as "<Module>.<RefListName>". The binding requires the
     // SHORT name (without the module prefix); runtime adds the prefix when resolving.
-    // Stripping mirrors the convention reflist.js uses on its summary output.
+    // Stripping mirrors the convention reflist.cjs uses on its summary output.
     const refListModule = prop.referenceListModule || moduleName || 'Shesha';
     let refListName = prop.referenceListName;
     const prefix = refListModule + '.';
@@ -1181,19 +1181,19 @@ function loadPlan() {
   info(`staged at ${stagePath}`);
 
   // Autofix
-  info('running autofix.js');
-  const fix = runScript('autofix.js', stagePath, ['--inplace']);
+  info('running autofix.cjs');
+  const fix = runScript('autofix.cjs', stagePath, ['--inplace']);
   if (fix.code !== 0) { process.stderr.write(fix.stderr); die(`autofix failed (exit ${fix.code})`); }
   process.stderr.write(fix.stderr);
 
   // Validate
-  info('running validate.js');
+  info('running validate.cjs');
   const valArgs = ['--name', effFormName];
   if (args.strict) valArgs.push('--strict');
-  const val = runScript('validate.js', stagePath, valArgs);
+  const val = runScript('validate.cjs', stagePath, valArgs);
   process.stderr.write(val.stderr);
   if (val.code !== 0) {
-    die(`validate.js reported errors (exit ${val.code}). Inspect ${stagePath} and re-run.`);
+    die(`validate.cjs reported errors (exit ${val.code}). Inspect ${stagePath} and re-run.`);
   }
 
   // Re-read autofixed/validated tree

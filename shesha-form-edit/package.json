@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "commit": "node test-log/tracker.mjs",
-    "push": "node test-log/tracker.mjs"
+    "test": "node test-log/tracker.mjs",
+    "iterate": "node test-log/iterate.mjs"
   }
 }

@@ -1,0 +1,46 @@
+{
+  "template": "details",
+  "name": "crm-lead-details-v2",
+  "label": "Lead Details (CRM)",
+  "moduleName": "A.Test",
+  "modelType": "Shesha.Domain.Person",
+  "fields": [
+    {
+      "type": "section",
+      "label": "Basic Information",
+      "components": [
+        { "propertyName": "firstName", "type": "textField", "label": "First Name" },
+        { "propertyName": "lastName", "type": "textField", "label": "Last Name" },
+        { "propertyName": "emailAddress1", "type": "textField", "textType": "email", "label": "Email" },
+        { "propertyName": "mobileNumber1", "type": "textField", "textType": "tel", "label": "Mobile" }
+      ]
+    },
+    {
+      "type": "section",
+      "label": "CRM Tracking",
+      "components": [
+        {
+          "propertyName": "status",
+          "type": "dropdown",
+          "label": "Lead Status",
+          "dataSourceType": "referenceList",
+          "referenceListId": { "module": "A.Test", "name": "LeadStatus" }
+        },
+        {
+          "propertyName": "source",
+          "type": "dropdown",
+          "label": "Lead Source",
+          "dataSourceType": "referenceList",
+          "referenceListId": { "module": "A.Test", "name": "LeadSource" }
+        },
+        {
+          "propertyName": "priority",
+          "type": "dropdown",
+          "label": "Priority",
+          "dataSourceType": "referenceList",
+          "referenceListId": { "module": "A.Test", "name": "LeadPriority" }
+        }
+      ]
+    }
+  ]
+}
