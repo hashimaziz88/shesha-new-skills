@@ -1,0 +1,355 @@
+{
+  "_template": {
+    "kind": "citizen-profile",
+    "version": 1,
+    "placeholders": ["__MODULE__", "__ENTITY__", "__ENTITY_KEBAB__", "__ENTITY_PRETTY__", "__MODEL_TYPE__"],
+    "slots": {
+      "fields": "the Profile tab's __SLOT_FIELDS__ container is filled with the rendered field components (scaffold.js polish pass)"
+    },
+    "invariants": [
+      "Self-service portal feel: KeyInfoBar at top, Edit toggle, 4 tabs (Profile, Documents, Applications, History).",
+      "Documents tab uses attachmentsEditor with category filters — caller wires the specific categories.",
+      "Applications tab embeds a child datatable on a related entity (e.g. {Entity}Application) — caller adjusts entityType if needed.",
+      "History tab uses the EntityHistory/GetAuditTrail endpoint, scoped to data.id."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-cit-root",
+      "type": "container",
+      "propertyName": "profileRoot",
+      "componentName": "profileRoot",
+      "parentId": "root",
+      "className": "sha-page",
+      "direction": "vertical",
+      "label": " ",
+      "hideLabel": true,
+      "components": [
+        {
+          "id": "tpl-cit-title",
+          "type": "container",
+          "propertyName": "profileTitle",
+          "componentName": "profileTitle",
+          "parentId": "tpl-cit-root",
+          "className": "sha-page-title",
+          "direction": "horizontal",
+          "justifyContent": "space-between",
+          "alignItems": "center",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-cit-heading-group",
+              "type": "container",
+              "propertyName": "headingGroup",
+              "componentName": "headingGroup",
+              "parentId": "tpl-cit-title",
+              "direction": "vertical",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-cit-h",
+                  "type": "text",
+                  "propertyName": "heading",
+                  "componentName": "heading",
+                  "parentId": "tpl-cit-heading-group",
+                  "label": " ",
+                  "hideLabel": true,
+                  "content": "My profile",
+                  "contentDisplay": "content",
+                  "level": 1,
+                  "textType": "span"
+                },
+                {
+                  "id": "tpl-cit-sub",
+                  "type": "text",
+                  "propertyName": "subtitle",
+                  "componentName": "subtitle",
+                  "parentId": "tpl-cit-heading-group",
+                  "label": " ",
+                  "hideLabel": true,
+                  "content": "Manage your personal details, documents, and applications.",
+                  "contentDisplay": "content",
+                  "textType": "span"
+                }
+              ]
+            },
+            {
+              "id": "tpl-cit-toolbar",
+              "type": "container",
+              "propertyName": "profileToolbar",
+              "componentName": "profileToolbar",
+              "parentId": "tpl-cit-title",
+              "direction": "horizontal",
+              "alignItems": "center",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-cit-btn-edit",
+                  "type": "button",
+                  "propertyName": "btnEdit",
+                  "componentName": "btnEdit",
+                  "parentId": "tpl-cit-toolbar",
+                  "label": "Edit profile",
+                  "buttonType": "primary",
+                  "icon": "EditOutlined",
+                  "editMode": "editable",
+                  "hidden": { "_mode": "code", "_code": "return form.formMode !== 'readonly';" },
+                  "actionConfiguration": { "actionOwner": "shesha.common", "actionName": "Change Form Mode", "actionArguments": { "formMode": "edit" }, "handleSuccess": false, "handleFail": false }
+                },
+                {
+                  "id": "tpl-cit-btn-save",
+                  "type": "button",
+                  "propertyName": "btnSave",
+                  "componentName": "btnSave",
+                  "parentId": "tpl-cit-toolbar",
+                  "label": "Save",
+                  "buttonType": "primary",
+                  "icon": "SaveOutlined",
+                  "editMode": "editable",
+                  "hidden": { "_mode": "code", "_code": "return form.formMode !== 'edit';" },
+                  "actionConfiguration": { "actionOwner": "shesha.common", "actionName": "Submit", "handleSuccess": false, "handleFail": false }
+                },
+                {
+                  "id": "tpl-cit-btn-cancel",
+                  "type": "button",
+                  "propertyName": "btnCancel",
+                  "componentName": "btnCancel",
+                  "parentId": "tpl-cit-toolbar",
+                  "label": "Cancel",
+                  "buttonType": "ghost",
+                  "icon": "CloseOutlined",
+                  "editMode": "editable",
+                  "hidden": { "_mode": "code", "_code": "return form.formMode !== 'edit';" },
+                  "actionConfiguration": { "actionOwner": "shesha.common", "actionName": "Change Form Mode", "actionArguments": { "formMode": "readonly" }, "handleSuccess": false, "handleFail": false }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tpl-cit-content",
+          "type": "container",
+          "propertyName": "profileContent",
+          "componentName": "profileContent",
+          "parentId": "tpl-cit-root",
+          "className": "sha-page-content",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-cit-validation",
+              "type": "validationErrors",
+              "propertyName": "validationErrors",
+              "componentName": "validationErrors",
+              "parentId": "tpl-cit-content",
+              "label": " ",
+              "hideLabel": true
+            },
+            {
+              "id": "tpl-cit-tabs",
+              "type": "tabs",
+              "propertyName": "profileTabs",
+              "componentName": "profileTabs",
+              "parentId": "tpl-cit-content",
+              "label": " ",
+              "hideLabel": true,
+              "defaultActiveKey": "profile",
+              "tabs": [
+                {
+                  "id": "tpl-cit-tab-profile",
+                  "key": "profile",
+                  "title": "Profile",
+                  "components": [
+                    {
+                      "id": "tpl-cit-fields-slot",
+                      "type": "container",
+                      "propertyName": "__SLOT_FIELDS__",
+                      "componentName": "fieldsSlot",
+                      "parentId": "tpl-cit-tab-profile",
+                      "label": " ",
+                      "hideLabel": true,
+                      "direction": "vertical",
+                      "components": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-cit-tab-docs",
+                  "key": "documents",
+                  "title": "Documents",
+                  "components": [
+                    {
+                      "id": "tpl-cit-docs-help",
+                      "type": "text",
+                      "propertyName": "docsHelp",
+                      "componentName": "docsHelp",
+                      "parentId": "tpl-cit-tab-docs",
+                      "label": " ",
+                      "hideLabel": true,
+                      "content": "Your uploaded documents. Add or replace any document by clicking the upload area.",
+                      "contentDisplay": "content",
+                      "textType": "span"
+                    },
+                    {
+                      "id": "tpl-cit-docs-attachments",
+                      "type": "attachmentsEditor",
+                      "propertyName": "documents",
+                      "componentName": "documents",
+                      "parentId": "tpl-cit-tab-docs",
+                      "label": " ",
+                      "hideLabel": true,
+                      "editMode": "editable",
+                      "allowUpload": true,
+                      "allowReplace": true,
+                      "allowDelete": true,
+                      "isDragger": true,
+                      "ownerType": "__MODEL_TYPE__",
+                      "ownerIdExpression": "data?.id"
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-cit-tab-apps",
+                  "key": "applications",
+                  "title": "Applications",
+                  "components": [
+                    {
+                      "id": "tpl-cit-apps-help",
+                      "type": "text",
+                      "propertyName": "appsHelp",
+                      "componentName": "appsHelp",
+                      "parentId": "tpl-cit-tab-apps",
+                      "label": " ",
+                      "hideLabel": true,
+                      "content": "Track applications you've submitted. Click any row to view details.",
+                      "contentDisplay": "content",
+                      "textType": "span"
+                    },
+                    {
+                      "id": "tpl-cit-apps-ctx",
+                      "type": "datatableContext",
+                      "propertyName": "appsContext",
+                      "componentName": "appsContext",
+                      "parentId": "tpl-cit-tab-apps",
+                      "label": " ",
+                      "hideLabel": true,
+                      "sourceType": "Entity",
+                      "entityType": "__MODEL_TYPE__",
+                      "permanentFilter": { "_mode": "code", "_code": "    return data?.id ? JSON.stringify({ '==': [{ var: 'owner.id' }, data.id] }) : JSON.stringify({ '==': [1, 0] });" },
+                      "dataFetchingMode": "paging",
+                      "defaultPageSize": 10,
+                      "components": [
+                        {
+                          "id": "tpl-cit-apps-table",
+                          "type": "datatable",
+                          "propertyName": "appsTable",
+                          "componentName": "appsTable",
+                          "parentId": "tpl-cit-apps-ctx",
+                          "label": " ",
+                          "hideLabel": true,
+                          "rowDividers": true,
+                          "hoverHighlight": true,
+                          "noDataIcon": "FileDoneOutlined",
+                          "noDataText": "No applications yet",
+                          "noDataSecondaryText": "Once you submit an application, it will appear here so you can track its progress.",
+                          "items": [
+                            { "id": "tpl-cit-apps-col-ref",  "columnType": "data", "propertyName": "_displayName",  "caption": "Reference", "isVisible": true, "sortable": true, "minWidth": 200 },
+                            { "id": "tpl-cit-apps-col-stat", "columnType": "data", "propertyName": "status",        "caption": "Status",    "isVisible": true, "sortable": true, "minWidth": 140 },
+                            { "id": "tpl-cit-apps-col-time", "columnType": "data", "propertyName": "creationTime",  "caption": "Submitted", "isVisible": true, "sortable": true, "minWidth": 160 }
+                          ]
+                        },
+                        {
+                          "id": "tpl-cit-apps-pager",
+                          "type": "datatable.pager",
+                          "propertyName": "appsPager",
+                          "componentName": "appsPager",
+                          "parentId": "tpl-cit-apps-ctx",
+                          "label": " ",
+                          "hideLabel": true,
+                          "actionOwner": "appsContext"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-cit-tab-history",
+                  "key": "history",
+                  "title": "History",
+                  "components": [
+                    {
+                      "id": "tpl-cit-history-ctx",
+                      "type": "datatableContext",
+                      "propertyName": "historyContext",
+                      "componentName": "historyContext",
+                      "parentId": "tpl-cit-tab-history",
+                      "label": " ",
+                      "hideLabel": true,
+                      "sourceType": "Url",
+                      "endpoint": "/api/services/app/EntityHistory/GetAuditTrail?entityId={{data.id}}&entityTypeFullName=__MODEL_TYPE__",
+                      "dataFetchingMode": "paging",
+                      "defaultPageSize": 25,
+                      "components": [
+                        {
+                          "id": "tpl-cit-history-table",
+                          "type": "datatable",
+                          "propertyName": "historyTable",
+                          "componentName": "historyTable",
+                          "parentId": "tpl-cit-history-ctx",
+                          "label": " ",
+                          "hideLabel": true,
+                          "rowDividers": true,
+                          "hoverHighlight": true,
+                          "noDataIcon": "ClockCircleOutlined",
+                          "noDataText": "No changes recorded yet",
+                          "noDataSecondaryText": "Once you update your profile, the change history will appear here.",
+                          "items": [
+                            { "id": "tpl-cit-history-col-time", "columnType": "data", "propertyName": "creationTime",  "caption": "When",     "isVisible": true, "minWidth": 180 },
+                            { "id": "tpl-cit-history-col-action","columnType": "data", "propertyName": "action",       "caption": "Action",   "isVisible": true, "minWidth": 120 },
+                            { "id": "tpl-cit-history-col-prop", "columnType": "data", "propertyName": "propertyName",  "caption": "Property", "isVisible": true, "minWidth": 160 },
+                            { "id": "tpl-cit-history-col-from", "columnType": "data", "propertyName": "originalValue", "caption": "From",     "isVisible": true, "minWidth": 160 },
+                            { "id": "tpl-cit-history-col-to",   "columnType": "data", "propertyName": "newValue",      "caption": "To",       "isVisible": true, "minWidth": 160 }
+                          ]
+                        },
+                        {
+                          "id": "tpl-cit-history-pager",
+                          "type": "datatable.pager",
+                          "propertyName": "historyPager",
+                          "componentName": "historyPager",
+                          "parentId": "tpl-cit-history-ctx",
+                          "label": " ",
+                          "hideLabel": true,
+                          "actionOwner": "historyContext"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "gql",
+    "dataSubmitterType": "gql",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": { "gql": { "endpointType": "default" } },
+    "layout": "horizontal",
+    "labelCol": { "span": 8 },
+    "wrapperCol": { "span": 16 },
+    "colon": true,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

@@ -49,7 +49,7 @@ Every component has:
 ```
 
 - `id` — unique GUID. **Stable; never regenerate on existing components.** When cloning, deep-clone with new ids; never touch originals.
-- `type` — must match a key in `assets/component-properties.json` (or be a known custom type).
+- `type` — must match a known component type from the clean-form-config index (`node scripts/components-index.js` lists them).
 - `propertyName` — for **input** components, the entity property to bind. **camelCase** (`firstName`); the underlying entity is PascalCase (`FirstName`); the framework maps automatically. Don't double-case.
 - `parentId` — `'root'` for top-level, otherwise the parent container's id. Every child's `parentId` must reference an `id` that exists in the tree. After moving components, sweep to verify.
 - `label` — display label. Hidden if `hideLabel: true`.
@@ -108,6 +108,6 @@ The `Create` endpoint may not honour `access` on initial create. After `POST /Cr
 
 ## When in doubt
 
-- The authoritative valid-keys-per-type list is `assets/component-properties.json`. If you're about to write a key that isn't there, you're probably wrong.
+- The authoritative valid-keys-per-type list lives in the **`shesha-developer:clean-form-config`** skill's `assets/groups/*.json`. Inspect via `node scripts/components-index.js <type>` (e.g. `dropdown`, `entityPicker`). If you're about to write a key that isn't in the index, you're probably wrong.
 - For component-defaults to mirror the MCP transformer output, see `assets/component-defaults.json`.
 - For component types not covered in any reference file (kanban, charts, queryBuilder, themeEditor, mainMenuEditor, processMonitor, kpi-style cards), inspect an existing form that uses them — the designer's output is canonical.

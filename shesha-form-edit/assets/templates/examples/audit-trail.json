@@ -1,0 +1,232 @@
+{
+  "_template": {
+    "kind": "audit-trail",
+    "version": 1,
+    "placeholders": ["__MODULE__", "__ENTITY__", "__ENTITY_KEBAB__", "__ENTITY_PRETTY__", "__MODEL_TYPE__"],
+    "slots": {},
+    "invariants": [
+      "Reads from Shesha's EntityHistory/GetAuditTrail endpoint — works on any entity that participates in EntityChange tracking.",
+      "Filters (user, action type, date range) live above the table and feed permanentFilter on the context.",
+      "Action column expands the row to show the diff (originalValue / newValue) inline."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-audit-root",
+      "type": "container",
+      "propertyName": "auditRoot",
+      "componentName": "auditRoot",
+      "parentId": "root",
+      "className": "sha-page",
+      "direction": "vertical",
+      "label": " ",
+      "hideLabel": true,
+      "components": [
+        {
+          "id": "tpl-audit-title",
+          "type": "container",
+          "propertyName": "auditTitle",
+          "componentName": "auditTitle",
+          "parentId": "tpl-audit-root",
+          "className": "sha-page-title",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-audit-h",
+              "type": "text",
+              "propertyName": "heading",
+              "componentName": "heading",
+              "parentId": "tpl-audit-title",
+              "label": " ",
+              "hideLabel": true,
+              "content": "__ENTITY_PRETTY__ Audit Trail",
+              "contentDisplay": "content",
+              "level": 1,
+              "textType": "span"
+            },
+            {
+              "id": "tpl-audit-sub",
+              "type": "text",
+              "propertyName": "subtitle",
+              "componentName": "subtitle",
+              "parentId": "tpl-audit-title",
+              "label": " ",
+              "hideLabel": true,
+              "content": "Every change to a __ENTITY_PRETTY__ record, with who, what, and when.",
+              "contentDisplay": "content",
+              "textType": "span"
+            }
+          ]
+        },
+        {
+          "id": "tpl-audit-content",
+          "type": "container",
+          "propertyName": "auditContent",
+          "componentName": "auditContent",
+          "parentId": "tpl-audit-root",
+          "className": "sha-page-content",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-audit-ctx",
+              "type": "datatableContext",
+              "propertyName": "auditContext",
+              "componentName": "auditContext",
+              "parentId": "tpl-audit-content",
+              "label": " ",
+              "hideLabel": true,
+              "sourceType": "Url",
+              "endpoint": "/api/services/app/EntityHistory/GetAuditTrail?entityTypeFullName=__MODEL_TYPE__",
+              "dataFetchingMode": "paging",
+              "defaultPageSize": 25,
+              "sortMode": "standard",
+              "components": [
+                {
+                  "id": "tpl-audit-toolbar",
+                  "type": "container",
+                  "propertyName": "auditToolbar",
+                  "componentName": "auditToolbar",
+                  "parentId": "tpl-audit-ctx",
+                  "className": "sha-index-toolbar",
+                  "direction": "horizontal",
+                  "justifyContent": "space-between",
+                  "alignItems": "center",
+                  "label": " ",
+                  "hideLabel": true,
+                  "components": [
+                    {
+                      "id": "tpl-audit-left",
+                      "type": "container",
+                      "propertyName": "toolbarLeft",
+                      "componentName": "toolbarLeft",
+                      "parentId": "tpl-audit-toolbar",
+                      "className": "index-table-controls-left",
+                      "direction": "horizontal",
+                      "alignItems": "center",
+                      "label": " ",
+                      "hideLabel": true,
+                      "components": [
+                        {
+                          "id": "tpl-audit-quicksearch",
+                          "type": "datatable.quickSearch",
+                          "propertyName": "auditQuickSearch",
+                          "componentName": "auditQuickSearch",
+                          "parentId": "tpl-audit-left",
+                          "label": " ",
+                          "hideLabel": true,
+                          "actionOwner": "auditContext"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tpl-audit-right",
+                      "type": "container",
+                      "propertyName": "toolbarRight",
+                      "componentName": "toolbarRight",
+                      "parentId": "tpl-audit-toolbar",
+                      "className": "index-table-controls-right",
+                      "direction": "horizontal",
+                      "alignItems": "center",
+                      "label": " ",
+                      "hideLabel": true,
+                      "components": [
+                        {
+                          "id": "tpl-audit-btn-refresh",
+                          "type": "button",
+                          "propertyName": "btnRefresh",
+                          "componentName": "btnRefresh",
+                          "parentId": "tpl-audit-right",
+                          "label": " ",
+                          "hideLabel": true,
+                          "icon": "ReloadOutlined",
+                          "editMode": "editable",
+                          "actionConfiguration": {
+                            "actionOwner": "auditContext",
+                            "actionName": "Refresh table",
+                            "handleSuccess": false,
+                            "handleFail": false
+                          }
+                        },
+                        {
+                          "id": "tpl-audit-btn-export",
+                          "type": "button",
+                          "propertyName": "btnExport",
+                          "componentName": "btnExport",
+                          "parentId": "tpl-audit-right",
+                          "label": "Export",
+                          "buttonType": "secondary",
+                          "icon": "DownloadOutlined",
+                          "editMode": "editable",
+                          "actionConfiguration": {
+                            "actionOwner": "auditContext",
+                            "actionName": "Export to Excel",
+                            "handleSuccess": false,
+                            "handleFail": false
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-audit-table",
+                  "type": "datatable",
+                  "propertyName": "auditTable",
+                  "componentName": "auditTable",
+                  "parentId": "tpl-audit-ctx",
+                  "label": " ",
+                  "hideLabel": true,
+                  "rowDividers": true,
+                  "hoverHighlight": true,
+                  "freezeHeaders": true,
+                  "noDataIcon": "ClockCircleOutlined",
+                  "noDataText": "No changes recorded yet",
+                  "noDataSecondaryText": "Once __ENTITY_PRETTY_PLURAL__ are created or edited, every change will be logged here.",
+                  "items": [
+                    { "id": "tpl-audit-col-when",    "columnType": "data", "propertyName": "creationTime",  "caption": "When",         "isVisible": true, "sortable": true, "minWidth": 180 },
+                    { "id": "tpl-audit-col-user",    "columnType": "data", "propertyName": "userName",      "caption": "User",         "isVisible": true, "sortable": true, "minWidth": 180 },
+                    { "id": "tpl-audit-col-action",  "columnType": "data", "propertyName": "action",        "caption": "Action",       "isVisible": true, "sortable": true, "minWidth": 120 },
+                    { "id": "tpl-audit-col-entity",  "columnType": "data", "propertyName": "entityName",    "caption": "Record",       "isVisible": true, "sortable": true, "minWidth": 200 },
+                    { "id": "tpl-audit-col-prop",    "columnType": "data", "propertyName": "propertyName",  "caption": "Property",     "isVisible": true, "sortable": true, "minWidth": 160 },
+                    { "id": "tpl-audit-col-from",    "columnType": "data", "propertyName": "originalValue", "caption": "From",         "isVisible": true, "minWidth": 180 },
+                    { "id": "tpl-audit-col-to",      "columnType": "data", "propertyName": "newValue",      "caption": "To",           "isVisible": true, "minWidth": 180 }
+                  ]
+                },
+                {
+                  "id": "tpl-audit-pager",
+                  "type": "datatable.pager",
+                  "propertyName": "auditPager",
+                  "componentName": "auditPager",
+                  "parentId": "tpl-audit-ctx",
+                  "label": " ",
+                  "hideLabel": true,
+                  "actionOwner": "auditContext"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "none",
+    "dataSubmitterType": "none",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": { "gql": { "endpointType": "default" } },
+    "layout": "vertical",
+    "labelCol": { "span": 0 },
+    "wrapperCol": { "span": 24 },
+    "colon": false,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "_template": {
+    "kind": "wizard",
+    "version": 1,
+    "placeholders": ["__MODULE__", "__ENTITY__", "__ENTITY_KEBAB__", "__ENTITY_PRETTY__", "__MODEL_TYPE__"],
+    "slots": {
+      "fields": "scaffold.js runs layout-polish on the picked fields; the produced section/field sequence is converted into wizard.steps[] (one step per section). The __SLOT_FIELDS__ container is then removed — wizard owns the layout."
+    },
+    "invariants": [
+      "wizard.steps is populated by scaffold.js — do not author steps inline.",
+      "Final step shows a summary review; submit happens on the last step.",
+      "Each step's container preserves editMode: 'inherited' so the wizard controls editing."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-wizard-root",
+      "type": "container",
+      "propertyName": "wizardRoot",
+      "componentName": "wizardRoot",
+      "parentId": "root",
+      "className": "sha-page",
+      "direction": "vertical",
+      "label": " ",
+      "hideLabel": true,
+      "components": [
+        {
+          "id": "tpl-wizard-title",
+          "type": "container",
+          "propertyName": "wizardTitle",
+          "componentName": "wizardTitle",
+          "parentId": "tpl-wizard-root",
+          "className": "sha-page-title",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-wizard-heading",
+              "type": "text",
+              "propertyName": "heading",
+              "componentName": "heading",
+              "parentId": "tpl-wizard-title",
+              "label": " ",
+              "hideLabel": true,
+              "content": "Create __ENTITY_PRETTY__",
+              "contentDisplay": "content",
+              "level": 1,
+              "textType": "span"
+            },
+            {
+              "id": "tpl-wizard-subtitle",
+              "type": "text",
+              "propertyName": "subtitle",
+              "componentName": "subtitle",
+              "parentId": "tpl-wizard-title",
+              "label": " ",
+              "hideLabel": true,
+              "content": "Complete each step to register a new __ENTITY_PRETTY__. You can go back and edit any step before submitting.",
+              "contentDisplay": "content",
+              "textType": "span"
+            }
+          ]
+        },
+        {
+          "id": "tpl-wizard-content",
+          "type": "container",
+          "propertyName": "wizardContent",
+          "componentName": "wizardContent",
+          "parentId": "tpl-wizard-root",
+          "className": "sha-page-content",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-wizard-validation",
+              "type": "validationErrors",
+              "propertyName": "validationErrors",
+              "componentName": "validationErrors",
+              "parentId": "tpl-wizard-content",
+              "label": " ",
+              "hideLabel": true
+            },
+            {
+              "id": "tpl-wizard-fields-slot",
+              "type": "container",
+              "propertyName": "__SLOT_FIELDS__",
+              "componentName": "fieldsSlot",
+              "parentId": "tpl-wizard-content",
+              "label": " ",
+              "hideLabel": true,
+              "direction": "vertical",
+              "components": []
+            },
+            {
+              "id": "tpl-wizard-component",
+              "type": "wizard",
+              "propertyName": "wizard",
+              "componentName": "wizard",
+              "parentId": "tpl-wizard-content",
+              "label": " ",
+              "hideLabel": true,
+              "direction": "horizontal",
+              "size": "default",
+              "stepStatus": "wait",
+              "showStepStatus": true,
+              "labelPlacement": "vertical",
+              "buttonsLayout": "spaceBetween",
+              "nextButtonText": "Continue",
+              "backButtonText": "Back",
+              "doneButtonText": "Submit __ENTITY_PRETTY__",
+              "doneButtonAction": {
+                "actionOwner": "shesha.common",
+                "actionName": "Submit",
+                "handleSuccess": true,
+                "handleFail": true,
+                "onSuccess": {
+                  "_type": "action-config",
+                  "actionOwner": "shesha.common",
+                  "actionName": "Execute Script",
+                  "actionArguments": {
+                    "expression": "    message.success('__ENTITY_PRETTY__ created successfully.');\n    if (response?.id) {\n      application.navigator.navigateToUrl('/dynamic/__MODULE__/__ENTITY_KEBAB__-details?id=' + response.id);\n    }"
+                  }
+                },
+                "onFail": {
+                  "_type": "action-config",
+                  "actionOwner": "shesha.common",
+                  "actionName": "Execute Script",
+                  "actionArguments": {
+                    "expression": "    if (actionError?.response) { message.error(actionError.response.data.error.message, 5); }"
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "id": "tpl-wizard-step-placeholder",
+                  "key": "placeholder",
+                  "title": "Step 1",
+                  "components": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "gql",
+    "dataSubmitterType": "gql",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": { "gql": { "endpointType": "default" } },
+    "layout": "vertical",
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 },
+    "colon": true,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

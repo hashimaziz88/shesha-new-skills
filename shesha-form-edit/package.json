@@ -1,0 +1,9 @@
+{
+  "name": "shesha-form-edit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "commit": "node test-log/tracker.mjs",
+    "push": "node test-log/tracker.mjs"
+  }
+}

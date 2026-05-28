@@ -1,0 +1,352 @@
+{
+  "_template": {
+    "kind": "table",
+    "version": 3,
+    "placeholders": ["__MODULE__", "__ENTITY__", "__ENTITY_KEBAB__", "__ENTITY_PRETTY__", "__ENTITY_PRETTY_PLURAL__", "__MODEL_TYPE__"],
+    "slots": {
+      "columns": "the datatable's `items` array is appended with the rendered column components; the leading action column is preserved"
+    },
+    "invariants": [
+      "Mirrors the framework's organisation-table-example chrome: sha-index-table-full > datatableContext (uniqueStateId=TABLE_VIEW_TEMPLATE_ID, sortMode=standard) > sha-index-table-control (tableViewSelector + quickSearch + filter-wrapper + refresh + toggle-columns + pager) > sha-index-toolbar (toolbar-inner wrapper > buttonGroup with Add + Export) > sha-page-content > datatable.",
+      "No sha-page-heading outside the datatableContext — the page title comes from the Shesha navigation layout.",
+      "Action column FIRST navigates to {entity}-details. Add button opens {entity}-create dialog.",
+      "Export button (buttonType=link) triggers Export to Excel on the tableContext.",
+      "datatable.filter is wrapped in a container (filterWrapper) to match framework output.",
+      "Toolbar buttonGroup is wrapped in a tableToolbarInner container inside sha-index-toolbar.",
+      "All buttons use buttonType=link to match the framework style.",
+      "dataFetchingMode: 'paging', defaultPageSize: 10, sortMode: 'standard'."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-table-root",
+      "type": "container",
+      "propertyName": "tableRoot",
+      "componentName": "tableRoot",
+      "parentId": "root",
+      "className": "sha-index-table-full",
+      "direction": "vertical",
+      "label": " ",
+      "hideLabel": true,
+      "components": [
+        {
+          "id": "tpl-table-context",
+          "type": "datatableContext",
+          "propertyName": "tableContext",
+          "componentName": "tableContext",
+          "parentId": "tpl-table-root",
+          "label": " ",
+          "hideLabel": true,
+          "uniqueStateId": "TABLE_VIEW_TEMPLATE_ID",
+          "sourceType": "Entity",
+          "entityType": "__MODEL_TYPE__",
+          "dataFetchingMode": "paging",
+          "defaultPageSize": 10,
+          "sortMode": "standard",
+          "strictSortOrder": "asc",
+          "allowReordering": "no",
+          "components": [
+            {
+              "id": "tpl-table-control",
+              "type": "container",
+              "propertyName": "tableControl",
+              "componentName": "tableControl",
+              "parentId": "tpl-table-context",
+              "className": "sha-index-table-control",
+              "direction": "horizontal",
+              "justifyContent": "space-between",
+              "alignItems": "center",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-table-control-left",
+                  "type": "container",
+                  "propertyName": "tableControlLeft",
+                  "componentName": "tableControlLeft",
+                  "parentId": "tpl-table-control",
+                  "className": "index-table-controls-left",
+                  "direction": "horizontal",
+                  "alignItems": "center",
+                  "label": " ",
+                  "hideLabel": true,
+                  "components": [
+                    {
+                      "id": "tpl-table-view-selector",
+                      "type": "tableViewSelector",
+                      "propertyName": "viewSelector",
+                      "componentName": "viewSelector",
+                      "parentId": "tpl-table-control-left",
+                      "label": " ",
+                      "hideLabel": true,
+                      "filters": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-table-control-right",
+                  "type": "container",
+                  "propertyName": "tableControlRight",
+                  "componentName": "tableControlRight",
+                  "parentId": "tpl-table-control",
+                  "className": "index-table-controls-right",
+                  "direction": "horizontal",
+                  "alignItems": "center",
+                  "label": " ",
+                  "hideLabel": true,
+                  "components": [
+                    {
+                      "id": "tpl-table-quicksearch",
+                      "type": "datatable.quickSearch",
+                      "propertyName": "quickSearch",
+                      "componentName": "quickSearch",
+                      "parentId": "tpl-table-control-right",
+                      "label": " ",
+                      "hideLabel": true,
+                      "actionOwner": "tableContext"
+                    },
+                    {
+                      "id": "tpl-table-filter-wrapper",
+                      "type": "container",
+                      "propertyName": "filterWrapper",
+                      "componentName": "filterWrapper",
+                      "parentId": "tpl-table-control-right",
+                      "label": " ",
+                      "hideLabel": true,
+                      "direction": "horizontal",
+                      "components": [
+                        {
+                          "id": "tpl-table-col-filter",
+                          "type": "datatable.filter",
+                          "propertyName": "columnFilter",
+                          "componentName": "columnFilter",
+                          "parentId": "tpl-table-filter-wrapper",
+                          "label": " ",
+                          "hideLabel": true,
+                          "actionOwner": "tableContext"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tpl-table-btn-refresh",
+                      "type": "button",
+                      "propertyName": "btnRefresh",
+                      "componentName": "btnRefresh",
+                      "parentId": "tpl-table-control-right",
+                      "label": " ",
+                      "hideLabel": true,
+                      "icon": "ReloadOutlined",
+                      "editMode": "editable",
+                      "actionConfiguration": {
+                        "actionOwner": "tableContext",
+                        "actionName": "Refresh table",
+                        "handleSuccess": false,
+                        "handleFail": false
+                      }
+                    },
+                    {
+                      "id": "tpl-table-btn-toggle-cols",
+                      "type": "button",
+                      "propertyName": "btnToggleCols",
+                      "componentName": "btnToggleCols",
+                      "parentId": "tpl-table-control-right",
+                      "label": " ",
+                      "hideLabel": true,
+                      "icon": "SettingOutlined",
+                      "editMode": "editable",
+                      "actionConfiguration": {
+                        "actionOwner": "tableContext",
+                        "actionName": "Toggle Columns Selector",
+                        "handleSuccess": false,
+                        "handleFail": false
+                      }
+                    },
+                    {
+                      "id": "tpl-table-pager",
+                      "type": "datatable.pager",
+                      "propertyName": "pager",
+                      "componentName": "pager",
+                      "parentId": "tpl-table-control-right",
+                      "label": " ",
+                      "hideLabel": true,
+                      "actionOwner": "tableContext"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tpl-table-toolbar",
+              "type": "container",
+              "propertyName": "tableToolbar",
+              "componentName": "tableToolbar",
+              "parentId": "tpl-table-context",
+              "className": "sha-index-toolbar",
+              "direction": "horizontal",
+              "justifyContent": "flex-end",
+              "alignItems": "center",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-table-toolbar-inner",
+                  "type": "container",
+                  "propertyName": "tableToolbarInner",
+                  "componentName": "tableToolbarInner",
+                  "parentId": "tpl-table-toolbar",
+                  "label": " ",
+                  "hideLabel": true,
+                  "direction": "horizontal",
+                  "components": [
+                    {
+                      "id": "tpl-table-btn-group",
+                      "type": "buttonGroup",
+                      "propertyName": "tableButtonGroup",
+                      "componentName": "tableButtonGroup",
+                      "parentId": "tpl-table-toolbar-inner",
+                      "label": " ",
+                      "hideLabel": true,
+                      "isInline": true,
+                      "items": [
+                        {
+                          "id": "tpl-table-btn-add",
+                          "itemType": "item",
+                          "name": "btnAdd",
+                          "label": "Add __ENTITY_PRETTY__",
+                          "buttonType": "link",
+                          "icon": "PlusOutlined",
+                          "editMode": "editable",
+                          "actionConfiguration": {
+                            "actionOwner": "shesha.common",
+                            "actionName": "Show Dialog",
+                            "handleSuccess": true,
+                            "handleFail": true,
+                            "actionArguments": {
+                              "modalTitle": "Add __ENTITY_PRETTY__",
+                              "formId": {
+                                "name": "__ENTITY_KEBAB__-create",
+                                "module": "__MODULE__"
+                              },
+                              "showModalFooter": true,
+                              "submitHttpVerb": "POST"
+                            },
+                            "onSuccess": {
+                              "_type": "action-config",
+                              "actionOwner": "tableContext",
+                              "actionName": "Refresh table",
+                              "handleSuccess": false,
+                              "handleFail": false
+                            },
+                            "onFail": {
+                              "_type": "action-config",
+                              "actionOwner": "shesha.common",
+                              "actionName": "Execute Script",
+                              "actionArguments": {
+                                "expression": "if (actionError?.response) { message.error(actionError.response.data.error.message, 5); }"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "id": "tpl-table-btn-export",
+                          "itemType": "item",
+                          "name": "btnExport",
+                          "label": "Export",
+                          "buttonType": "link",
+                          "icon": "ExportOutlined",
+                          "editMode": "editable",
+                          "actionConfiguration": {
+                            "actionOwner": "tableContext",
+                            "actionName": "Export to Excel",
+                            "handleSuccess": false,
+                            "handleFail": false
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tpl-table-content",
+              "type": "container",
+              "propertyName": "tableContent",
+              "componentName": "tableContent",
+              "parentId": "tpl-table-context",
+              "className": "sha-page-content",
+              "direction": "vertical",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-table-datatable",
+                  "type": "datatable",
+                  "propertyName": "table",
+                  "componentName": "table",
+                  "parentId": "tpl-table-content",
+                  "label": " ",
+                  "hideLabel": true,
+                  "striped": true,
+                  "rowDividers": true,
+                  "hoverHighlight": true,
+                  "cellBorders": false,
+                  "freezeHeaders": true,
+                  "responsiveMode": "card",
+                  "noDataText": "No __ENTITY_PRETTY_PLURAL__ yet",
+                  "noDataSecondaryText": "Click \"Add __ENTITY_PRETTY__\" to create the first one.",
+                  "items": [
+                    {
+                      "id": "tpl-table-col-action",
+                      "columnType": "action",
+                      "itemType": "item",
+                      "isVisible": true,
+                      "actionConfiguration": {
+                        "actionOwner": "shesha.common",
+                        "actionName": "Navigate",
+                        "handleSuccess": false,
+                        "handleFail": false,
+                        "actionArguments": {
+                          "navigationType": "form",
+                          "formId": {
+                            "name": "__ENTITY_KEBAB__-details",
+                            "module": "__MODULE__"
+                          }
+                        }
+                      },
+                      "icon": "EyeOutlined",
+                      "description": "View / Edit __ENTITY_PRETTY__",
+                      "minWidth": 40,
+                      "maxWidth": 40
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "none",
+    "dataSubmitterType": "none",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": {
+      "gql": {
+        "endpointType": "default",
+        "dynamicEndpoint": "    return data?.id ? form.defaultApiEndpoints.update : form.defaultApiEndpoints.create"
+      }
+    },
+    "layout": "horizontal",
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 },
+    "colon": true,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

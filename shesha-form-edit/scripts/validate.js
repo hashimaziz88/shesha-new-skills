@@ -5,6 +5,11 @@
  * Reports errors and warnings. Errors block push; warnings are surfaced to the user.
  * Run AFTER autofix.js, BEFORE invoking clean-form-config.
  *
+ * For the broader "is every property valid for this component type" check, defer to
+ * `shesha-developer:clean-form-config` (the canonical index is its assets/groups/*.json;
+ * see scripts/components-index.js). This file only runs the high-leverage targeted checks
+ * that catch real bugs.
+ *
  * Checks performed:
  *   - Form-name regex (when --name <name> is provided)
  *   - Unique component ids in the tree
@@ -80,9 +85,23 @@ function isObjFormId(v) {
   return v && typeof v === 'object' && typeof v.name === 'string' && typeof v.module === 'string';
 }
 
+// Keys whose values are action-config / binding blobs — never recurse into these for
+// id collection. They contain template literals like { id: "{{data.id}}" } in payloads
+// which are NOT component ids.
+const SKIP_KEYS = new Set([
+  'actionConfiguration', 'actionArguments', 'onSuccess', 'onFail', 'validate',
+  'dataLoadersSettings', 'dataSubmittersSettings', 'doneButtonAction',
+  'onBeforeDataLoad', 'onAfterDataLoad', 'onPrepareSubmitData', 'onBeforeSubmit',
+  'onSubmitSuccess', 'onSubmitFailed', 'permanentFilter', 'queryParams',
+]);
+
 function walk(node, where) {
-  if (!node || typeof node !== 'object') return;
-  if (Array.isArray(node)) { node.forEach((n, i) => walk(n, `${where}[${i}]`)); return; }
+  if (!node) return;
+  if (Array.isArray(node)) {
+    node.forEach((n, i) => walk(n, `${where}[${i}]`));
+    return;
+  }
+  if (typeof node !== 'object') return;
 
   if ('_mode' in node && node._mode !== undefined) {
     if (node._mode !== 'value' && node._mode !== 'code') {
@@ -94,9 +113,7 @@ function walk(node, where) {
     }
   }
 
-  // Track ids on any node with an id (components have `type`; column/tab/wizard-step
-  // entries have just `{ id, components, ... }` without a type — they still count as
-  // valid parentId targets).
+  // Track ids on any tree node we walked into (we never enter action-config blobs).
   if (node.id && typeof node.id === 'string') {
     if (ids.has(node.id)) err(`Duplicate id "${node.id}" at ${where}.`);
     ids.add(node.id);
@@ -178,7 +195,10 @@ function walk(node, where) {
   }
 
   for (const k of Object.keys(node)) {
-    if (typeof node[k] === 'object') walk(node[k], `${where}.${k}`);
+    if (SKIP_KEYS.has(k)) continue;
+    if (node[k] && typeof node[k] === 'object') {
+      walk(node[k], `${where}.${k}`);
+    }
   }
 }
 

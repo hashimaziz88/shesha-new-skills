@@ -1,0 +1,375 @@
+{
+  "_template": {
+    "kind": "details",
+    "version": 3,
+    "placeholders": [
+      "__MODULE__",
+      "__ENTITY__",
+      "__ENTITY_KEBAB__",
+      "__ENTITY_PRETTY__",
+      "__MODEL_TYPE__"
+    ],
+    "slots": {
+      "fields": "the collapsiblePanel.content.components[0].components contains __SLOT_FIELDS__ — scaffold.js fills it with the rendered field components",
+      "childTables": "the tabs component with componentName=childTablesTabs is __SLOT_CHILD_TABLES__ — plan.childTables[] become tabs here, Notes tab stays last"
+    },
+    "invariants": [
+      "Mirrors the framework's organisation-detail-view-example: sha-page > sha-page-heading (title row: {{name}} + modelType breadcrumb, KeyInformationBar below) > sha-page-heading (buttonGroup toolbar, space-between) > sha-page-content (validationErrors + collapsiblePanel for main fields + child-tables container).",
+      "Title text shows {{name}} (the record's name field), not the entity class name.",
+      "Model type breadcrumb (second text in sha-page-title) shows __MODEL_TYPE__.",
+      "Notes tab MUST remain LAST in the tabs array.",
+      "Edit/Save/Cancel buttonGroup uses Start Edit / Submit / Cancel Edit (not Change Form Mode). All buttons are buttonType=link.",
+      "Audit Log button always visible — opens entity-change-audit-log dialog in module Shesha.",
+      "validationErrors sits at the top of sha-page-content so scaffold.js can splice the KeyInformationBar above it.",
+      "KeyInformationBar is in the sha-page-heading title area (right side, container9) with empty columns; scaffold.js populates its columns array."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-details-page-root",
+      "type": "container",
+      "propertyName": "pageRoot",
+      "componentName": "pageRoot",
+      "parentId": "root",
+      "label": " ",
+      "hideLabel": true,
+      "className": "sha-page",
+      "direction": "vertical",
+      "components": [
+        {
+          "id": "tpl-details-page-heading-title",
+          "type": "container",
+          "propertyName": "pageHeadingTitle",
+          "componentName": "pageHeadingTitle",
+          "parentId": "tpl-details-page-root",
+          "className": "sha-page-heading",
+          "direction": "horizontal",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-details-heading-wrapper",
+              "type": "container",
+              "propertyName": "headingWrapper",
+              "componentName": "headingWrapper",
+              "parentId": "tpl-details-page-heading-title",
+              "direction": "vertical",
+              "justifyContent": "left",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-details-title-row",
+                  "type": "container",
+                  "propertyName": "titleRow",
+                  "componentName": "titleRow",
+                  "parentId": "tpl-details-heading-wrapper",
+                  "className": "sha-page-title",
+                  "direction": "horizontal",
+                  "label": " ",
+                  "hideLabel": true,
+                  "components": [
+                    {
+                      "id": "tpl-details-heading",
+                      "type": "text",
+                      "propertyName": "heading",
+                      "componentName": "heading",
+                      "parentId": "tpl-details-title-row",
+                      "label": " ",
+                      "hideLabel": true,
+                      "content": "{{name}}",
+                      "contentDisplay": "content",
+                      "level": 1,
+                      "textType": "span"
+                    },
+                    {
+                      "id": "tpl-details-model-type",
+                      "type": "text",
+                      "propertyName": "modelTypeBreadcrumb",
+                      "componentName": "modelTypeBreadcrumb",
+                      "parentId": "tpl-details-title-row",
+                      "label": " ",
+                      "hideLabel": true,
+                      "content": "__MODEL_TYPE__",
+                      "contentDisplay": "content",
+                      "level": 1,
+                      "textType": "span"
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-details-key-info-row",
+                  "type": "container",
+                  "propertyName": "keyInfoRow",
+                  "componentName": "keyInfoRow",
+                  "parentId": "tpl-details-heading-wrapper",
+                  "direction": "vertical",
+                  "label": " ",
+                  "hideLabel": true,
+                  "components": [
+                    {
+                      "id": "tpl-details-key-info-bar",
+                      "type": "KeyInformationBar",
+                      "propertyName": "keyInformationBar",
+                      "componentName": "keyInformationBar",
+                      "parentId": "tpl-details-key-info-row",
+                      "label": "Key Information Bar",
+                      "hideLabel": true,
+                      "editMode": "readOnly",
+                      "columns": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tpl-details-page-heading-toolbar",
+          "type": "container",
+          "propertyName": "pageHeadingToolbar",
+          "componentName": "pageHeadingToolbar",
+          "parentId": "tpl-details-page-root",
+          "className": "sha-page-heading",
+          "direction": "horizontal",
+          "justifyContent": "space-between",
+          "alignItems": "center",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-details-toolbar-group",
+              "type": "buttonGroup",
+              "propertyName": "toolbarGroup",
+              "componentName": "toolbarGroup",
+              "parentId": "tpl-details-page-heading-toolbar",
+              "label": " ",
+              "hideLabel": true,
+              "isInline": true,
+              "items": [
+                {
+                  "id": "tpl-details-btn-cancel-edit",
+                  "itemType": "item",
+                  "name": "btnCancelEdit",
+                  "label": "Cancel Form Edit",
+                  "buttonType": "link",
+                  "icon": "CloseOutlined",
+                  "editMode": "editable",
+                  "hidden": {
+                    "_mode": "code",
+                    "_code": "return form.formMode !== 'edit';"
+                  },
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Cancel Edit",
+                    "handleSuccess": false,
+                    "handleFail": false
+                  }
+                },
+                {
+                  "id": "tpl-details-btn-edit",
+                  "itemType": "item",
+                  "name": "btnEdit",
+                  "label": "Edit",
+                  "buttonType": "link",
+                  "icon": "EditOutlined",
+                  "editMode": "editable",
+                  "hidden": {
+                    "_mode": "code",
+                    "_code": "return form.formMode !== 'readonly';"
+                  },
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Start Edit",
+                    "handleSuccess": false,
+                    "handleFail": false
+                  }
+                },
+                {
+                  "id": "tpl-details-btn-save",
+                  "itemType": "item",
+                  "name": "btnSave",
+                  "label": "Save",
+                  "buttonType": "link",
+                  "icon": "SaveOutlined",
+                  "editMode": "editable",
+                  "hidden": {
+                    "_mode": "code",
+                    "_code": "return form.formMode !== 'edit';"
+                  },
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Submit",
+                    "handleSuccess": false,
+                    "handleFail": false
+                  }
+                },
+                {
+                  "id": "tpl-details-btn-audit-log",
+                  "itemType": "item",
+                  "name": "btnAuditLog",
+                  "label": "Audit Log",
+                  "buttonType": "link",
+                  "icon": "AuditOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "_type": "action-config",
+                    "actionOwner": "shesha.common",
+                    "actionName": "Show Dialog",
+                    "handleSuccess": false,
+                    "handleFail": false,
+                    "actionArguments": {
+                      "modalTitle": "Entity Audit Log",
+                      "formId": {
+                        "name": "entity-change-audit-log",
+                        "module": "Shesha"
+                      },
+                      "footerButtons": "none",
+                      "modalWidth": "80%",
+                      "formMode": "edit",
+                      "formArguments": "    return {\n        entityId: data.id,\n        modelType: form.formSettings.modelType,\n        includeEventsOnChildEntities: false,\n    };"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tpl-details-page-content",
+          "type": "container",
+          "propertyName": "pageContent",
+          "componentName": "pageContent",
+          "parentId": "tpl-details-page-root",
+          "className": "sha-page-content",
+          "label": " ",
+          "hideLabel": true,
+          "direction": "vertical",
+          "components": [
+            {
+              "id": "tpl-details-validation",
+              "type": "validationErrors",
+              "propertyName": "validationErrors",
+              "componentName": "validationErrors",
+              "parentId": "tpl-details-page-content",
+              "label": " ",
+              "hideLabel": true
+            },
+            {
+              "id": "tpl-details-panel",
+              "type": "collapsiblePanel",
+              "propertyName": "detailsPanel",
+              "componentName": "detailsPanel",
+              "parentId": "tpl-details-page-content",
+              "label": "Details",
+              "expanded": true,
+              "collapsible": "header",
+              "ghost": false,
+              "expandIconPosition": "start",
+              "header": {
+                "id": "tpl-details-panel-header",
+                "components": []
+              },
+              "content": {
+                "id": "tpl-details-panel-content",
+                "components": [
+                  {
+                    "id": "tpl-details-panel-content-wrapper",
+                    "type": "container",
+                    "propertyName": "detailsPanelContentWrapper",
+                    "componentName": "detailsPanelContentWrapper",
+                    "parentId": "tpl-details-panel-content",
+                    "label": " ",
+                    "hideLabel": true,
+                    "direction": "vertical",
+                    "components": [
+                      {
+                        "id": "tpl-details-fields-slot",
+                        "type": "container",
+                        "propertyName": "__SLOT_FIELDS__",
+                        "componentName": "fieldsContainer",
+                        "parentId": "tpl-details-panel-content-wrapper",
+                        "label": " ",
+                        "hideLabel": true,
+                        "direction": "vertical",
+                        "components": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "id": "tpl-details-child-tables-wrapper",
+              "type": "container",
+              "propertyName": "childTablesWrapper",
+              "componentName": "childTablesWrapper",
+              "parentId": "tpl-details-page-content",
+              "label": " ",
+              "hideLabel": true,
+              "direction": "vertical",
+              "components": [
+                {
+                  "id": "tpl-details-child-tabs",
+                  "type": "tabs",
+                  "propertyName": "childTablesTabs",
+                  "componentName": "childTablesTabs",
+                  "parentId": "tpl-details-child-tables-wrapper",
+                  "label": " ",
+                  "hideLabel": true,
+                  "defaultActiveKey": "notes",
+                  "tabs": [
+                    {
+                      "id": "tpl-details-tab-notes",
+                      "key": "notes",
+                      "title": "Notes",
+                      "components": [
+                        {
+                          "id": "tpl-details-notes",
+                          "type": "notes",
+                          "propertyName": "notes",
+                          "componentName": "notes",
+                          "parentId": "tpl-details-tab-notes",
+                          "label": " ",
+                          "hideLabel": true,
+                          "editMode": "editable",
+                          "ownerType": "__MODEL_TYPE__",
+                          "ownerIdExpression": "data?.id",
+                          "allowDelete": true,
+                          "savePlacement": "left"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "gql",
+    "dataSubmitterType": "gql",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": {
+      "gql": {
+        "endpointType": "default",
+        "dynamicEndpoint": "    return data?.id ? form.defaultApiEndpoints.update : form.defaultApiEndpoints.create"
+      }
+    },
+    "layout": "horizontal",
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 },
+    "colon": true,
+    "size": "middle",
+    "showModeToggler": true,
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "onBeforeDataLoad": "    form.setFieldsValue({ ...form.formArguments });",
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

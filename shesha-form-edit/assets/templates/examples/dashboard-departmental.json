@@ -1,0 +1,325 @@
+{
+  "_template": {
+    "kind": "dashboard-departmental",
+    "version": 1,
+    "placeholders": ["__MODULE__", "__ENTITY__", "__ENTITY_KEBAB__", "__ENTITY_PRETTY__", "__MODEL_TYPE__"],
+    "slots": {},
+    "invariants": [
+      "Not entity-bound: formSettings.modelType is empty; dataLoaderType: 'none'.",
+      "Four KPI cards reference TODO endpoints — the caller fills these in post-scaffold.",
+      "Recent activity table uses a placeholder dataTableContext bound to __MODEL_TYPE__; remove if the dashboard isn't entity-related."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-dash-root",
+      "type": "container",
+      "propertyName": "dashboardRoot",
+      "componentName": "dashboardRoot",
+      "parentId": "root",
+      "className": "sha-page",
+      "direction": "vertical",
+      "label": " ",
+      "hideLabel": true,
+      "components": [
+        {
+          "id": "tpl-dash-title",
+          "type": "container",
+          "propertyName": "dashboardTitle",
+          "componentName": "dashboardTitle",
+          "parentId": "tpl-dash-root",
+          "className": "sha-page-title",
+          "direction": "horizontal",
+          "justifyContent": "space-between",
+          "alignItems": "center",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-dash-heading-group",
+              "type": "container",
+              "propertyName": "headingGroup",
+              "componentName": "headingGroup",
+              "parentId": "tpl-dash-title",
+              "direction": "vertical",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-dash-heading",
+                  "type": "text",
+                  "propertyName": "heading",
+                  "componentName": "heading",
+                  "parentId": "tpl-dash-heading-group",
+                  "label": " ",
+                  "hideLabel": true,
+                  "content": "__ENTITY_PRETTY__ Dashboard",
+                  "contentDisplay": "content",
+                  "level": 1,
+                  "textType": "span"
+                },
+                {
+                  "id": "tpl-dash-subtitle",
+                  "type": "text",
+                  "propertyName": "subtitle",
+                  "componentName": "subtitle",
+                  "parentId": "tpl-dash-heading-group",
+                  "label": " ",
+                  "hideLabel": true,
+                  "content": "Overview of activity, key metrics, and recent updates.",
+                  "contentDisplay": "content",
+                  "textType": "span"
+                }
+              ]
+            },
+            {
+              "id": "tpl-dash-filters",
+              "type": "container",
+              "propertyName": "filters",
+              "componentName": "filters",
+              "parentId": "tpl-dash-title",
+              "direction": "horizontal",
+              "alignItems": "center",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-dash-range",
+                  "type": "dateField",
+                  "propertyName": "dateRange",
+                  "componentName": "dateRange",
+                  "parentId": "tpl-dash-filters",
+                  "label": "Date range",
+                  "hideLabel": true,
+                  "editMode": "editable",
+                  "picker": "date",
+                  "dateFormat": "DD MMM YYYY",
+                  "prefixIcon": "CalendarOutlined",
+                  "placeholder": "Filter by date"
+                },
+                {
+                  "id": "tpl-dash-btn-export",
+                  "type": "button",
+                  "propertyName": "btnExport",
+                  "componentName": "btnExport",
+                  "parentId": "tpl-dash-filters",
+                  "label": "Export",
+                  "buttonType": "ghost",
+                  "icon": "DownloadOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Execute Script",
+                    "handleSuccess": false,
+                    "handleFail": false,
+                    "actionArguments": { "expression": "message.info('TODO: wire export endpoint');" }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tpl-dash-content",
+          "type": "container",
+          "propertyName": "dashboardContent",
+          "componentName": "dashboardContent",
+          "parentId": "tpl-dash-root",
+          "className": "sha-page-content",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-dash-kpis",
+              "type": "columns",
+              "propertyName": "kpiRow",
+              "componentName": "kpiRow",
+              "parentId": "tpl-dash-content",
+              "label": " ",
+              "hideLabel": true,
+              "gutterX": 16,
+              "gutterY": 16,
+              "columns": [
+                { "id": "tpl-dash-col-1", "flex": 6, "offset": 0, "push": 0, "pull": 0, "components": [
+                  { "id": "tpl-dash-kpi-1", "type": "statistic", "propertyName": "kpiTotal", "componentName": "kpiTotal", "parentId": "tpl-dash-col-1", "label": "Total __ENTITY_PRETTY_PLURAL__", "value": 0, "precision": 0, "prefix": "" }
+                ]},
+                { "id": "tpl-dash-col-2", "flex": 6, "offset": 0, "push": 0, "pull": 0, "components": [
+                  { "id": "tpl-dash-kpi-2", "type": "statistic", "propertyName": "kpiNew", "componentName": "kpiNew", "parentId": "tpl-dash-col-2", "label": "New (this month)", "value": 0, "precision": 0, "valueStyle": { "color": "#16A34A" } }
+                ]},
+                { "id": "tpl-dash-col-3", "flex": 6, "offset": 0, "push": 0, "pull": 0, "components": [
+                  { "id": "tpl-dash-kpi-3", "type": "statistic", "propertyName": "kpiPending", "componentName": "kpiPending", "parentId": "tpl-dash-col-3", "label": "Pending review", "value": 0, "precision": 0, "valueStyle": { "color": "#D97706" } }
+                ]},
+                { "id": "tpl-dash-col-4", "flex": 6, "offset": 0, "push": 0, "pull": 0, "components": [
+                  { "id": "tpl-dash-kpi-4", "type": "statistic", "propertyName": "kpiCompleted", "componentName": "kpiCompleted", "parentId": "tpl-dash-col-4", "label": "Completed", "value": 0, "precision": 0 }
+                ]}
+              ]
+            },
+            {
+              "id": "tpl-dash-recent-section",
+              "type": "sectionSeparator",
+              "propertyName": "recentSection",
+              "componentName": "recentSection",
+              "parentId": "tpl-dash-content",
+              "label": "Recent activity"
+            },
+            {
+              "id": "tpl-dash-recent-ctx",
+              "type": "datatableContext",
+              "propertyName": "recentContext",
+              "componentName": "recentContext",
+              "parentId": "tpl-dash-content",
+              "label": " ",
+              "hideLabel": true,
+              "sourceType": "Entity",
+              "entityType": "__MODEL_TYPE__",
+              "dataFetchingMode": "paging",
+              "defaultPageSize": 5,
+              "sortMode": "standard",
+              "components": [
+                {
+                  "id": "tpl-dash-recent-table",
+                  "type": "datatable",
+                  "propertyName": "recentTable",
+                  "componentName": "recentTable",
+                  "parentId": "tpl-dash-recent-ctx",
+                  "label": " ",
+                  "hideLabel": true,
+                  "rowDividers": true,
+                  "hoverHighlight": true,
+                  "noDataIcon": "InboxOutlined",
+                  "noDataText": "No recent activity",
+                  "noDataSecondaryText": "Activity will appear here once __ENTITY_PRETTY_PLURAL__ are created or updated.",
+                  "items": [
+                    {
+                      "id": "tpl-dash-col-action",
+                      "columnType": "action",
+                      "actionConfiguration": {
+                        "actionOwner": "shesha.common",
+                        "actionName": "Navigate",
+                        "handleSuccess": false,
+                        "handleFail": false,
+                        "actionArguments": {
+                          "navigationType": "form",
+                          "formId": { "name": "__ENTITY_KEBAB__-details", "module": "__MODULE__" }
+                        }
+                      },
+                      "icon": "EyeOutlined",
+                      "description": "View __ENTITY_PRETTY__",
+                      "minWidth": 40,
+                      "maxWidth": 40
+                    },
+                    { "id": "tpl-dash-recent-col-ref",  "columnType": "data", "propertyName": "_displayName", "caption": "Name",     "isVisible": true, "sortable": true, "minWidth": 200 },
+                    { "id": "tpl-dash-recent-col-cre",  "columnType": "data", "propertyName": "creationTime", "caption": "Created",  "isVisible": true, "sortable": true, "minWidth": 160 }
+                  ]
+                },
+                {
+                  "id": "tpl-dash-recent-pager",
+                  "type": "datatable.pager",
+                  "propertyName": "recentPager",
+                  "componentName": "recentPager",
+                  "parentId": "tpl-dash-recent-ctx",
+                  "label": " ",
+                  "hideLabel": true,
+                  "actionOwner": "recentContext"
+                }
+              ]
+            },
+            {
+              "id": "tpl-dash-actions-section",
+              "type": "sectionSeparator",
+              "propertyName": "actionsSection",
+              "componentName": "actionsSection",
+              "parentId": "tpl-dash-content",
+              "label": "Quick actions"
+            },
+            {
+              "id": "tpl-dash-actions",
+              "type": "container",
+              "propertyName": "actionsRow",
+              "componentName": "actionsRow",
+              "parentId": "tpl-dash-content",
+              "direction": "horizontal",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-dash-btn-new",
+                  "type": "button",
+                  "propertyName": "btnNew",
+                  "componentName": "btnNew",
+                  "parentId": "tpl-dash-actions",
+                  "label": "Add __ENTITY_PRETTY__",
+                  "buttonType": "primary",
+                  "icon": "PlusOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Show Dialog",
+                    "handleSuccess": true,
+                    "handleFail": true,
+                    "actionArguments": {
+                      "modalTitle": "Add __ENTITY_PRETTY__",
+                      "formId": { "name": "__ENTITY_KEBAB__-create", "module": "__MODULE__" },
+                      "showModalFooter": true
+                    },
+                    "onSuccess": {
+                      "_type": "action-config",
+                      "actionOwner": "recentContext",
+                      "actionName": "Refresh table",
+                      "handleSuccess": false,
+                      "handleFail": false
+                    },
+                    "onFail": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Execute Script",
+                      "actionArguments": { "expression": "if (actionError?.response) { message.error(actionError.response.data.error.message, 5); }" }
+                    }
+                  }
+                },
+                {
+                  "id": "tpl-dash-btn-browse",
+                  "type": "button",
+                  "propertyName": "btnBrowse",
+                  "componentName": "btnBrowse",
+                  "parentId": "tpl-dash-actions",
+                  "label": "Browse all",
+                  "buttonType": "secondary",
+                  "icon": "UnorderedListOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Navigate",
+                    "handleSuccess": false,
+                    "handleFail": false,
+                    "actionArguments": {
+                      "navigationType": "form",
+                      "formId": { "name": "__ENTITY_KEBAB__-table", "module": "__MODULE__" }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "",
+    "dataLoaderType": "none",
+    "dataSubmitterType": "none",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": { "gql": { "endpointType": "default" } },
+    "layout": "vertical",
+    "labelCol": { "span": 0 },
+    "wrapperCol": { "span": 24 },
+    "colon": false,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

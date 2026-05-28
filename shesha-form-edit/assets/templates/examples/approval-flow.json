@@ -1,0 +1,353 @@
+{
+  "_template": {
+    "kind": "approval-flow",
+    "version": 1,
+    "placeholders": ["__MODULE__", "__ENTITY__", "__ENTITY_KEBAB__", "__ENTITY_PRETTY__", "__MODEL_TYPE__"],
+    "slots": {
+      "fields": "the __SLOT_FIELDS__ container under the Request Details tab is filled with the rendered field components"
+    },
+    "invariants": [
+      "Action buttons (Approve / Reject / Request Changes) gated by status/permissions — scaffolded as hidden=false; tighten manually with role checks per project.",
+      "Comments and History are nested datatables wrapped in dataTableContext (entityType uses entity-change-audit-log + a comment subtype filter — adjust per project).",
+      "On approve/reject success, a toast is shown and the form refreshes."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-approval-root",
+      "type": "container",
+      "propertyName": "approvalRoot",
+      "componentName": "approvalRoot",
+      "parentId": "root",
+      "className": "sha-page",
+      "direction": "vertical",
+      "label": " ",
+      "hideLabel": true,
+      "components": [
+        {
+          "id": "tpl-approval-title",
+          "type": "container",
+          "propertyName": "approvalTitle",
+          "componentName": "approvalTitle",
+          "parentId": "tpl-approval-root",
+          "className": "sha-page-title",
+          "direction": "horizontal",
+          "justifyContent": "space-between",
+          "alignItems": "center",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-approval-heading",
+              "type": "container",
+              "propertyName": "headingGroup",
+              "componentName": "headingGroup",
+              "parentId": "tpl-approval-title",
+              "direction": "vertical",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-approval-h",
+                  "type": "text",
+                  "propertyName": "heading",
+                  "componentName": "heading",
+                  "parentId": "tpl-approval-heading",
+                  "label": " ",
+                  "hideLabel": true,
+                  "content": "__ENTITY_PRETTY__ Review",
+                  "contentDisplay": "content",
+                  "level": 1,
+                  "textType": "span"
+                },
+                {
+                  "id": "tpl-approval-sub",
+                  "type": "text",
+                  "propertyName": "subtitle",
+                  "componentName": "subtitle",
+                  "parentId": "tpl-approval-heading",
+                  "label": " ",
+                  "hideLabel": true,
+                  "content": "Review the request, leave a comment, and approve or reject.",
+                  "contentDisplay": "content",
+                  "textType": "span"
+                }
+              ]
+            },
+            {
+              "id": "tpl-approval-toolbar",
+              "type": "container",
+              "propertyName": "approvalToolbar",
+              "componentName": "approvalToolbar",
+              "parentId": "tpl-approval-title",
+              "direction": "horizontal",
+              "alignItems": "center",
+              "label": " ",
+              "hideLabel": true,
+              "components": [
+                {
+                  "id": "tpl-approval-btn-changes",
+                  "type": "button",
+                  "propertyName": "btnRequestChanges",
+                  "componentName": "btnRequestChanges",
+                  "parentId": "tpl-approval-toolbar",
+                  "label": "Request Changes",
+                  "buttonType": "ghost",
+                  "icon": "EditOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "Show Dialog",
+                    "handleSuccess": true,
+                    "handleFail": true,
+                    "actionArguments": {
+                      "modalTitle": "Request Changes",
+                      "formId": { "name": "__ENTITY_KEBAB__-request-changes", "module": "__MODULE__" },
+                      "showModalFooter": true
+                    },
+                    "onSuccess": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Refresh table",
+                      "handleSuccess": false,
+                      "handleFail": false
+                    },
+                    "onFail": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Execute Script",
+                      "actionArguments": { "expression": "if (actionError?.response) { message.error(actionError.response.data.error.message, 5); }" }
+                    }
+                  }
+                },
+                {
+                  "id": "tpl-approval-btn-reject",
+                  "type": "button",
+                  "propertyName": "btnReject",
+                  "componentName": "btnReject",
+                  "parentId": "tpl-approval-toolbar",
+                  "label": "Reject",
+                  "buttonType": "danger",
+                  "icon": "CloseCircleOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "API Call",
+                    "handleSuccess": true,
+                    "handleFail": true,
+                    "actionArguments": {
+                      "url": "/api/services/app/__ENTITY__/Reject",
+                      "verb": "POST",
+                      "data": { "id": "{{data.id}}" }
+                    },
+                    "onSuccess": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Execute Script",
+                      "actionArguments": { "expression": "message.success('__ENTITY_PRETTY__ rejected.'); form.refresh();" }
+                    },
+                    "onFail": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Execute Script",
+                      "actionArguments": { "expression": "if (actionError?.response) { message.error(actionError.response.data.error.message, 5); }" }
+                    }
+                  }
+                },
+                {
+                  "id": "tpl-approval-btn-approve",
+                  "type": "button",
+                  "propertyName": "btnApprove",
+                  "componentName": "btnApprove",
+                  "parentId": "tpl-approval-toolbar",
+                  "label": "Approve",
+                  "buttonType": "primary",
+                  "icon": "CheckCircleOutlined",
+                  "editMode": "editable",
+                  "actionConfiguration": {
+                    "actionOwner": "shesha.common",
+                    "actionName": "API Call",
+                    "handleSuccess": true,
+                    "handleFail": true,
+                    "actionArguments": {
+                      "url": "/api/services/app/__ENTITY__/Approve",
+                      "verb": "POST",
+                      "data": { "id": "{{data.id}}" }
+                    },
+                    "onSuccess": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Execute Script",
+                      "actionArguments": { "expression": "message.success('__ENTITY_PRETTY__ approved.'); form.refresh();" }
+                    },
+                    "onFail": {
+                      "_type": "action-config",
+                      "actionOwner": "shesha.common",
+                      "actionName": "Execute Script",
+                      "actionArguments": { "expression": "if (actionError?.response) { message.error(actionError.response.data.error.message, 5); }" }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tpl-approval-content",
+          "type": "container",
+          "propertyName": "approvalContent",
+          "componentName": "approvalContent",
+          "parentId": "tpl-approval-root",
+          "className": "sha-page-content",
+          "direction": "vertical",
+          "label": " ",
+          "hideLabel": true,
+          "components": [
+            {
+              "id": "tpl-approval-validation",
+              "type": "validationErrors",
+              "propertyName": "validationErrors",
+              "componentName": "validationErrors",
+              "parentId": "tpl-approval-content",
+              "label": " ",
+              "hideLabel": true
+            },
+            {
+              "id": "tpl-approval-tabs",
+              "type": "tabs",
+              "propertyName": "approvalTabs",
+              "componentName": "approvalTabs",
+              "parentId": "tpl-approval-content",
+              "label": " ",
+              "hideLabel": true,
+              "defaultActiveKey": "request",
+              "tabs": [
+                {
+                  "id": "tpl-approval-tab-request",
+                  "key": "request",
+                  "title": "Request Details",
+                  "components": [
+                    {
+                      "id": "tpl-approval-fields-slot",
+                      "type": "container",
+                      "propertyName": "__SLOT_FIELDS__",
+                      "componentName": "fieldsSlot",
+                      "parentId": "tpl-approval-tab-request",
+                      "label": " ",
+                      "hideLabel": true,
+                      "direction": "vertical",
+                      "components": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-approval-tab-comments",
+                  "key": "comments",
+                  "title": "Comments",
+                  "components": [
+                    {
+                      "id": "tpl-approval-comments-help",
+                      "type": "text",
+                      "propertyName": "commentsHelp",
+                      "componentName": "commentsHelp",
+                      "parentId": "tpl-approval-tab-comments",
+                      "label": " ",
+                      "hideLabel": true,
+                      "content": "Add a comment for the requester or other reviewers. Comments are visible to everyone with access to this request.",
+                      "contentDisplay": "content",
+                      "textType": "span"
+                    },
+                    {
+                      "id": "tpl-approval-comments-notes",
+                      "type": "notes",
+                      "propertyName": "comments",
+                      "componentName": "comments",
+                      "parentId": "tpl-approval-tab-comments",
+                      "label": " ",
+                      "hideLabel": true,
+                      "editMode": "editable",
+                      "ownerType": "__MODEL_TYPE__",
+                      "ownerIdExpression": "data?.id",
+                      "allowDelete": false,
+                      "savePlacement": "left"
+                    }
+                  ]
+                },
+                {
+                  "id": "tpl-approval-tab-history",
+                  "key": "history",
+                  "title": "History",
+                  "components": [
+                    {
+                      "id": "tpl-approval-history-ctx",
+                      "type": "datatableContext",
+                      "propertyName": "historyContext",
+                      "componentName": "historyContext",
+                      "parentId": "tpl-approval-tab-history",
+                      "label": " ",
+                      "hideLabel": true,
+                      "sourceType": "Url",
+                      "endpoint": "/api/services/app/EntityHistory/GetAuditTrail?entityId={{data.id}}&entityTypeFullName=__MODEL_TYPE__",
+                      "dataFetchingMode": "paging",
+                      "defaultPageSize": 10,
+                      "components": [
+                        {
+                          "id": "tpl-approval-history-table",
+                          "type": "datatable",
+                          "propertyName": "historyTable",
+                          "componentName": "historyTable",
+                          "parentId": "tpl-approval-history-ctx",
+                          "label": " ",
+                          "hideLabel": true,
+                          "rowDividers": true,
+                          "hoverHighlight": true,
+                          "noDataIcon": "ClockCircleOutlined",
+                          "noDataText": "No history yet",
+                          "noDataSecondaryText": "Changes will appear here once the record has been edited.",
+                          "items": [
+                            { "id": "tpl-approval-col-time",   "columnType": "data", "propertyName": "creationTime", "caption": "When",       "isVisible": true, "minWidth": 160 },
+                            { "id": "tpl-approval-col-user",   "columnType": "data", "propertyName": "userName",     "caption": "User",       "isVisible": true, "minWidth": 160 },
+                            { "id": "tpl-approval-col-action", "columnType": "data", "propertyName": "action",       "caption": "Action",     "isVisible": true, "minWidth": 120 },
+                            { "id": "tpl-approval-col-prop",   "columnType": "data", "propertyName": "propertyName", "caption": "Property",   "isVisible": true, "minWidth": 160 },
+                            { "id": "tpl-approval-col-from",   "columnType": "data", "propertyName": "originalValue","caption": "From",       "isVisible": true, "minWidth": 160 },
+                            { "id": "tpl-approval-col-to",     "columnType": "data", "propertyName": "newValue",     "caption": "To",         "isVisible": true, "minWidth": 160 }
+                          ]
+                        },
+                        {
+                          "id": "tpl-approval-history-pager",
+                          "type": "datatable.pager",
+                          "propertyName": "historyPager",
+                          "componentName": "historyPager",
+                          "parentId": "tpl-approval-history-ctx",
+                          "label": " ",
+                          "hideLabel": true,
+                          "actionOwner": "historyContext"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "gql",
+    "dataSubmitterType": "gql",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": { "gql": { "endpointType": "default" } },
+    "layout": "horizontal",
+    "labelCol": { "span": 8 },
+    "wrapperCol": { "span": 16 },
+    "colon": true,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"]
+  }
+}

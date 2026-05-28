@@ -1,0 +1,80 @@
+{
+  "_template": {
+    "kind": "create",
+    "version": 1,
+    "placeholders": [
+      "__MODULE__",
+      "__ENTITY__",
+      "__ENTITY_KEBAB__",
+      "__ENTITY_PRETTY__",
+      "__MODEL_TYPE__"
+    ],
+    "slots": {
+      "fields": "the container with propertyName == '__SLOT_FIELDS__' has its `components` array replaced with the rendered field components"
+    },
+    "invariants": [
+      "NO Save/Cancel buttons in the form — the dialog framework adds them.",
+      "Use sectionSeparator for grouping (not panel). Create is a single-step dialog.",
+      "onSubmitSuccess navigates to {entity}-details for the newly-created record."
+    ]
+  },
+  "components": [
+    {
+      "id": "tpl-create-root",
+      "type": "container",
+      "propertyName": "createRoot",
+      "componentName": "createRoot",
+      "parentId": "root",
+      "label": " ",
+      "hideLabel": true,
+      "direction": "vertical",
+      "components": [
+        {
+          "id": "tpl-create-validation",
+          "type": "validationErrors",
+          "propertyName": "validationErrors",
+          "componentName": "validationErrors",
+          "parentId": "tpl-create-root",
+          "label": " ",
+          "hideLabel": true
+        },
+        {
+          "id": "tpl-create-section",
+          "type": "sectionSeparator",
+          "propertyName": "sectionMain",
+          "componentName": "sectionMain",
+          "parentId": "tpl-create-root",
+          "label": "__ENTITY_PRETTY__ Information"
+        },
+        {
+          "id": "tpl-create-fields-slot",
+          "type": "container",
+          "propertyName": "__SLOT_FIELDS__",
+          "componentName": "fieldsContainer",
+          "parentId": "tpl-create-root",
+          "label": " ",
+          "hideLabel": true,
+          "direction": "vertical",
+          "components": []
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "__MODEL_TYPE__",
+    "dataLoaderType": "gql",
+    "dataSubmitterType": "gql",
+    "dataLoadersSettings": { "gql": { "endpointType": "default" } },
+    "dataSubmittersSettings": { "gql": { "endpointType": "default" } },
+    "layout": "horizontal",
+    "labelCol": { "span": 8 },
+    "wrapperCol": { "span": 16 },
+    "colon": true,
+    "size": "middle",
+    "access": 3,
+    "permissions": [],
+    "version": 8,
+    "_formFields": ["layout", "colon", "labelCol.span", "wrapperCol.span"],
+    "onSubmitSuccess": "    if (response?.id) {\n      application.navigator.navigateToUrl('/dynamic/__MODULE__/__ENTITY_KEBAB__-details?id=' + response.id);\n    }"
+  }
+}
