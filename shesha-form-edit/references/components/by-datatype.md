@@ -51,3 +51,5 @@ Find the reference-list name from the property metadata: `referenceListName` + `
 `entityType` here is an **object** `{ name: "<ShortClassName>", module }` — the short class name, NOT the full namespace. Get the FK target from the property metadata's `entityType` field.
 
 > A bare `autocomplete`/`entityPicker` with no `entityType` renders an empty box. A `dropdown` without `dataSourceType` renders no options. Always set the data-source config.
+
+> **When you copy a dropdown/autocomplete from a seed, you MUST override its data-source for the new field.** A copied dropdown keeps the seed's `referenceListId`/`referenceListName` (e.g. it'll still point at `EmploymentType`), and a copied autocomplete keeps the seed's `entityType`. Always replace `referenceListId`+`referenceListName` (dropdown) or `entityType` (autocomplete) with the new field's own values — verified: forgetting this makes the field show the wrong list's options.

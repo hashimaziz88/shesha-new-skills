@@ -85,34 +85,12 @@ export function transformCreate(seedStr, { entityFull, fields }) {
 
   // Find the columns(detailsPanel) and replace its field components with our fields,
   // copying the styling envelope from the first existing field of the matching type.
-  const samples = {};
-  walk(tree.components, c => {
-    if (['textField','numberField','dateField','dropdown','autocomplete','textArea','checkbox'].includes(c.type) && !samples[c.type]) {
-      samples[c.type] = c;
-    }
-  });
-
-  function makeField(f) {
-    const base = samples[f.type] ? JSON.parse(JSON.stringify(samples[f.type])) : { type: f.type };
-    base.id = randomUUID();
-    base.propertyName = f.prop;
-    base.componentName = f.prop;
-    base.name = f.prop;
-    base.label = f.label;
-    base.editMode = 'inherited';
-    delete base.parentId;
-    return base;
-  }
-
+  const samples = collectSamples(tree);
   walk(tree.components, c => {
     if (c.type === 'columns' && c.propertyName === 'detailsPanel') {
       const cols = c.columns || [];
-      // distribute fields across the 2 columns
       cols.forEach(col => col.components = []);
-      fields.forEach((f, i) => {
-        const target = cols[i % cols.length];
-        target.components.push(makeField(f));
-      });
+      fields.forEach((f, i) => cols[i % cols.length].components.push(buildField(samples, f)));
     }
   });
   return tree;
@@ -132,21 +110,12 @@ export function transformDetailWithChild(seedStr, { entityFull, fields, title, c
     if (c.type === 'text' && c.componentName === '//*TITLE*//') c.content = title;
   });
 
-  const samples = {};
-  walk(tree.components, c => {
-    if (['textField','numberField','dateField','dropdown','autocomplete','textArea','checkbox'].includes(c.type) && !samples[c.type]) samples[c.type] = c;
-  });
-  const makeField = (f) => {
-    const base = samples[f.type] ? JSON.parse(JSON.stringify(samples[f.type])) : { type: f.type };
-    base.id = randomUUID(); base.propertyName = f.prop; base.componentName = f.prop;
-    base.name = f.prop; base.label = f.label; base.editMode = 'inherited';
-    delete base.parentId; return base;
-  };
+  const samples = collectSamples(tree);
   walk(tree.components, c => {
     if (c.type === 'columns' && c.propertyName === 'detailsPanel') {
       const cols = c.columns || [];
       cols.forEach(col => col.components = []);
-      fields.forEach((f, i) => cols[i % cols.length].components.push(makeField(f)));
+      fields.forEach((f, i) => cols[i % cols.length].components.push(buildField(samples, f)));
     }
   });
 
@@ -175,6 +144,39 @@ export function transformDetailWithChild(seedStr, { entityFull, fields, title, c
   return tree;
 }
 
+// Shared field builder: copy a same-type sample from the seed, then override identity + data-source.
+function collectSamples(tree) {
+  const samples = {};
+  walk(tree.components, c => {
+    if (['textField','numberField','dateField','dropdown','autocomplete','textArea','checkbox','switch'].includes(c.type) && !samples[c.type]) samples[c.type] = c;
+  });
+  return samples;
+}
+function buildField(samples, f) {
+  const base = samples[f.type] ? JSON.parse(JSON.stringify(samples[f.type])) : { type: f.type };
+  base.id = randomUUID();
+  base.propertyName = f.prop; base.componentName = f.prop; base.name = f.prop;
+  base.label = f.label; base.editMode = 'inherited';
+  delete base.parentId;
+  // reference-list dropdown override
+  if (f.type === 'dropdown' && f.reflist) {
+    base.dataSourceType = 'referenceList';
+    base.referenceListId = { module: f.reflist.module, name: f.reflist.name };
+    base.referenceListName = f.reflist.name;
+    base.valueFormat = 'simple';
+    base.mode = 'single';
+  }
+  // FK autocomplete override
+  if (f.type === 'autocomplete' && f.entityRef) {
+    base.dataSourceType = 'entitiesList';
+    base.entityType = { name: f.entityRef.name, module: f.entityRef.module };
+    base.valueFormat = 'entityReference';
+    base.mode = 'single';
+    base.useRawValues = false;
+  }
+  return base;
+}
+
 function walk(nodes, cb) {
   if (!Array.isArray(nodes)) return;
   for (const c of nodes) {
@@ -201,25 +203,12 @@ export function transformDetail(seedStr, { entityFull, fields, title }) {
     if (c.type === 'text' && c.componentName === '//*TITLE*//') c.content = title;
   });
 
-  const samples = {};
-  walk(tree.components, c => {
-    if (['textField','numberField','dateField','dropdown','autocomplete','textArea','checkbox'].includes(c.type) && !samples[c.type]) {
-      samples[c.type] = c;
-    }
-  });
-  const makeField = (f) => {
-    const base = samples[f.type] ? JSON.parse(JSON.stringify(samples[f.type])) : { type: f.type };
-    base.id = randomUUID();
-    base.propertyName = f.prop; base.componentName = f.prop; base.name = f.prop;
-    base.label = f.label; base.editMode = 'inherited';
-    delete base.parentId;
-    return base;
-  };
+  const samples = collectSamples(tree);
   walk(tree.components, c => {
     if (c.type === 'columns' && c.propertyName === 'detailsPanel') {
       const cols = c.columns || [];
       cols.forEach(col => col.components = []);
-      fields.forEach((f, i) => cols[i % cols.length].components.push(makeField(f)));
+      fields.forEach((f, i) => cols[i % cols.length].components.push(buildField(samples, f)));
     }
   });
   return tree;
