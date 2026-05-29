@@ -1,0 +1,386 @@
+{
+  "components": [
+    {
+      "id": "root-container",
+      "type": "container",
+      "propertyName": "root",
+      "label": "",
+      "hidden": false,
+      "components": [
+        {
+          "id": "header-row",
+          "type": "columns",
+          "propertyName": "headerRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-back",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-back",
+                  "type": "button",
+                  "propertyName": "btnBack",
+                  "label": "Back",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "icon": "ArrowLeftOutlined",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/dynamic/A.Test/erecruitment-job-postings-table"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-title",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "form-title",
+                  "type": "text",
+                  "propertyName": "formTitle",
+                  "content": "Job Posting",
+                  "fontSize": 22,
+                  "fontWeight": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sep-basic",
+          "type": "sectionSeparator",
+          "propertyName": "sepBasic",
+          "label": "Basic Information"
+        },
+        {
+          "id": "cols-basic",
+          "type": "columns",
+          "propertyName": "colsBasic",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-left",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-title",
+                  "type": "textField",
+                  "propertyName": "JobTitle",
+                  "label": "Job Title",
+                  "editMode": "editable",
+                  "validate": { "required": true }
+                },
+                {
+                  "id": "fld-reference",
+                  "type": "textField",
+                  "propertyName": "Reference",
+                  "label": "Reference Number",
+                  "editMode": "editable",
+                  "validate": { "required": true }
+                },
+                {
+                  "id": "fld-department",
+                  "type": "textField",
+                  "propertyName": "Department",
+                  "label": "Department",
+                  "editMode": "editable"
+                },
+                {
+                  "id": "fld-directorate",
+                  "type": "textField",
+                  "propertyName": "Directorate",
+                  "label": "Directorate",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-right",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-location",
+                  "type": "textField",
+                  "propertyName": "Location",
+                  "label": "Location",
+                  "editMode": "editable"
+                },
+                {
+                  "id": "fld-salary",
+                  "type": "textField",
+                  "propertyName": "SalaryRange",
+                  "label": "Salary Range",
+                  "editMode": "editable"
+                },
+                {
+                  "id": "fld-closing",
+                  "type": "dateField",
+                  "propertyName": "ClosingDate",
+                  "label": "Closing Date",
+                  "editMode": "editable",
+                  "validate": { "required": true },
+                  "dateFormat": "DD/MM/YYYY",
+                  "picker": "date"
+                },
+                {
+                  "id": "fld-posts",
+                  "type": "numberField",
+                  "propertyName": "NumberOfPosts",
+                  "label": "Number of Posts",
+                  "editMode": "editable",
+                  "min": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cols-classfn",
+          "type": "columns",
+          "propertyName": "colsClassfn",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-joblevel",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-joblevel",
+                  "type": "dropdown",
+                  "propertyName": "JobLevel",
+                  "label": "Job Level",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "JobLevel"
+                }
+              ]
+            },
+            {
+              "id": "col-emptype",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-emptype",
+                  "type": "dropdown",
+                  "propertyName": "EmploymentType",
+                  "label": "Employment Type",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "EmploymentType"
+                }
+              ]
+            },
+            {
+              "id": "col-status",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-status",
+                  "type": "dropdown",
+                  "propertyName": "Status",
+                  "label": "Status",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "JobPostingStatus"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sep-detail",
+          "type": "sectionSeparator",
+          "propertyName": "sepDetail",
+          "label": "Job Details"
+        },
+        {
+          "id": "fld-requirements",
+          "type": "textArea",
+          "propertyName": "Requirements",
+          "label": "Requirements",
+          "editMode": "editable",
+          "autoSize": { "minRows": 4 }
+        },
+        {
+          "id": "fld-responsibilities",
+          "type": "textArea",
+          "propertyName": "Responsibilities",
+          "label": "Responsibilities",
+          "editMode": "editable",
+          "autoSize": { "minRows": 4 }
+        },
+        {
+          "id": "fld-mreqs",
+          "type": "textArea",
+          "propertyName": "MinimumRequirements",
+          "label": "Minimum Requirements",
+          "editMode": "editable",
+          "autoSize": { "minRows": 3 }
+        },
+        {
+          "id": "fld-kpa",
+          "type": "textArea",
+          "propertyName": "KeyPerformanceAreas",
+          "label": "Key Performance Areas",
+          "editMode": "editable",
+          "autoSize": { "minRows": 3 }
+        },
+        {
+          "id": "sep-flags",
+          "type": "sectionSeparator",
+          "propertyName": "sepFlags",
+          "label": "Equity"
+        },
+        {
+          "id": "cols-flags",
+          "type": "columns",
+          "propertyName": "colsFlags",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-aa",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-aa",
+                  "type": "checkbox",
+                  "propertyName": "IsTargetedForAA",
+                  "label": "Targeted for Affirmative Action",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-disability",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-disability",
+                  "type": "checkbox",
+                  "propertyName": "IsOpenToPeopleWithDisabilities",
+                  "label": "Open to People with Disabilities",
+                  "editMode": "editable"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sep-contact",
+          "type": "sectionSeparator",
+          "propertyName": "sepContact",
+          "label": "Contact Information"
+        },
+        {
+          "id": "cols-contact",
+          "type": "columns",
+          "propertyName": "colsContact",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-cperson",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-cperson",
+                  "type": "textField",
+                  "propertyName": "ContactPerson",
+                  "label": "Contact Person",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-cemail",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-cemail",
+                  "type": "textField",
+                  "propertyName": "ContactEmail",
+                  "label": "Contact Email",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-cphone",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-cphone",
+                  "type": "textField",
+                  "propertyName": "ContactPhone",
+                  "label": "Contact Phone",
+                  "editMode": "editable"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "actions-row",
+          "type": "columns",
+          "propertyName": "actionsRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-save",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-save",
+                  "type": "button",
+                  "propertyName": "btnSave",
+                  "label": "Save",
+                  "editMode": "editable",
+                  "buttonType": "primary",
+                  "actionConfiguration": {
+                    "actionName": "Submit",
+                    "actionOwner": "shesha.form"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-cancel",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-cancel",
+                  "type": "button",
+                  "propertyName": "btnCancel",
+                  "label": "Cancel",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/dynamic/A.Test/erecruitment-job-postings-table"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "A.Test.Domain.Domain.Recruitment.JobPosting",
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 }
+  }
+}

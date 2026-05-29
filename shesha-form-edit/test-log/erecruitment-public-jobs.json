@@ -1,0 +1,150 @@
+{
+  "components": [
+    {
+      "id": "root-container",
+      "type": "container",
+      "propertyName": "root",
+      "label": "",
+      "hidden": false,
+      "components": [
+        {
+          "id": "page-header",
+          "type": "container",
+          "propertyName": "pageHeader",
+          "label": "",
+          "components": [
+            {
+              "id": "header-title",
+              "type": "text",
+              "propertyName": "headerTitle",
+              "content": "Current Job Opportunities",
+              "fontSize": 28,
+              "fontWeight": "bold"
+            },
+            {
+              "id": "header-subtitle",
+              "type": "text",
+              "propertyName": "headerSubtitle",
+              "content": "Browse available positions and apply online",
+              "fontSize": 14
+            }
+          ]
+        },
+        {
+          "id": "dt-ctx",
+          "type": "datatableContext",
+          "propertyName": "dtCtx",
+          "label": "Jobs Context",
+          "sourceType": "Entity",
+          "entityType": "A.Test.Domain.Domain.Recruitment.JobPosting",
+          "components": [
+            {
+              "id": "search-row",
+              "type": "columns",
+              "propertyName": "searchRow",
+              "label": "",
+              "columns": [
+                {
+                  "id": "col-qs",
+                  "flex": 1,
+                  "components": [
+                    {
+                      "id": "quick-search",
+                      "type": "datatable.quickSearch",
+                      "propertyName": "quickSearch",
+                      "label": "Search",
+                      "editMode": "editable",
+                      "placeholder": "Search by title, department or location..."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "jobs-table",
+              "type": "datatable",
+              "propertyName": "jobsTable",
+              "label": "Available Jobs",
+              "useMultiselect": false,
+              "rowSelectionMode": "none",
+              "columns": [
+                {
+                  "id": "col-title",
+                  "columnType": "data",
+                  "propertyName": "JobTitle",
+                  "caption": "Job Title",
+                  "minWidth": 220
+                },
+                {
+                  "id": "col-ref",
+                  "columnType": "data",
+                  "propertyName": "Reference",
+                  "caption": "Ref #",
+                  "minWidth": 100
+                },
+                {
+                  "id": "col-dept",
+                  "columnType": "data",
+                  "propertyName": "Department",
+                  "caption": "Department",
+                  "minWidth": 150
+                },
+                {
+                  "id": "col-location",
+                  "columnType": "data",
+                  "propertyName": "Location",
+                  "caption": "Location",
+                  "minWidth": 120
+                },
+                {
+                  "id": "col-salary",
+                  "columnType": "data",
+                  "propertyName": "SalaryRange",
+                  "caption": "Salary Range",
+                  "minWidth": 120
+                },
+                {
+                  "id": "col-closing",
+                  "columnType": "data",
+                  "propertyName": "ClosingDate",
+                  "caption": "Closing Date",
+                  "minWidth": 120
+                },
+                {
+                  "id": "col-apply",
+                  "columnType": "action",
+                  "caption": "Apply",
+                  "minWidth": 90,
+                  "icon": "FormOutlined",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/no-auth/A.Test/erecruitment-apply?jobPostingId={{currentRow.Id}}"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "pager",
+              "type": "datatable.pager",
+              "propertyName": "pager",
+              "label": "Pager",
+              "defaultPageSize": 15,
+              "showSizeChanger": false,
+              "showTotal": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "access": 5,
+    "layout": "horizontal",
+    "colon": false,
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 }
+  }
+}

@@ -289,7 +289,7 @@ async function phaseFinish() {
   if (existsSync(PENDING_PATH)) {
     const completed = loadJSON(PENDING_PATH);
     if (completed) saveJSON(join(__dirname, 'completed.json'), completed);
-    writeFileSync(PENDING_PATH, '');
+    writeFileSync(PENDING_PATH, '{}');
   }
 
   // Clean up

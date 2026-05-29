@@ -1,0 +1,360 @@
+{
+  "components": [
+    {
+      "id": "root-container",
+      "type": "container",
+      "propertyName": "root",
+      "label": "",
+      "hidden": false,
+      "components": [
+        {
+          "id": "header-row",
+          "type": "columns",
+          "propertyName": "headerRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-back",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-back",
+                  "type": "button",
+                  "propertyName": "btnBack",
+                  "label": "Back to Jobs",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "icon": "ArrowLeftOutlined",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/no-auth/A.Test/erecruitment-public-jobs"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-title",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "form-title",
+                  "type": "text",
+                  "propertyName": "formTitle",
+                  "content": "Job Application Form",
+                  "fontSize": 24,
+                  "fontWeight": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sep-personal",
+          "type": "sectionSeparator",
+          "propertyName": "sepPersonal",
+          "label": "Personal Details"
+        },
+        {
+          "id": "cols-personal",
+          "type": "columns",
+          "propertyName": "colsPersonal",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-p1",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-appno",
+                  "type": "textField",
+                  "propertyName": "ApplicationNumber",
+                  "label": "Application Number",
+                  "editMode": "editable",
+                  "validate": { "required": true },
+                  "placeholder": "e.g. APP-2026-001"
+                },
+                {
+                  "id": "fld-idnumber",
+                  "type": "textField",
+                  "propertyName": "IDNumber",
+                  "label": "ID / Passport Number",
+                  "editMode": "editable"
+                },
+                {
+                  "id": "fld-citizen",
+                  "type": "checkbox",
+                  "propertyName": "IsSACitizen",
+                  "label": "I am a South African citizen",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-p2",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-race",
+                  "type": "dropdown",
+                  "propertyName": "Race",
+                  "label": "Race",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "Race"
+                },
+                {
+                  "id": "fld-gender",
+                  "type": "dropdown",
+                  "propertyName": "Gender",
+                  "label": "Gender",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "Gender"
+                },
+                {
+                  "id": "fld-disability",
+                  "type": "dropdown",
+                  "propertyName": "DisabilityStatus",
+                  "label": "Disability Status",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "DisabilityStatus"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fld-drivers",
+          "type": "checkbox",
+          "propertyName": "HasDriversLicense",
+          "label": "I have a valid driver's license",
+          "editMode": "editable"
+        },
+        {
+          "id": "sep-cv",
+          "type": "sectionSeparator",
+          "propertyName": "sepCv",
+          "label": "Qualifications & Experience"
+        },
+        {
+          "id": "fld-qualifications",
+          "type": "textArea",
+          "propertyName": "Qualifications",
+          "label": "Qualifications",
+          "editMode": "editable",
+          "validate": { "required": false },
+          "autoSize": { "minRows": 4 },
+          "placeholder": "List your highest qualifications with institution and year obtained..."
+        },
+        {
+          "id": "fld-experience",
+          "type": "textArea",
+          "propertyName": "WorkExperience",
+          "label": "Work Experience",
+          "editMode": "editable",
+          "autoSize": { "minRows": 5 },
+          "placeholder": "Describe your relevant work experience..."
+        },
+        {
+          "id": "fld-skills",
+          "type": "textArea",
+          "propertyName": "Skills",
+          "label": "Skills",
+          "editMode": "editable",
+          "autoSize": { "minRows": 3 },
+          "placeholder": "List your key skills relevant to this position..."
+        },
+        {
+          "id": "sep-cover",
+          "type": "sectionSeparator",
+          "propertyName": "sepCover",
+          "label": "Cover Letter"
+        },
+        {
+          "id": "fld-cover",
+          "type": "textArea",
+          "propertyName": "CoverLetter",
+          "label": "Cover Letter",
+          "editMode": "editable",
+          "autoSize": { "minRows": 8 },
+          "placeholder": "Write your cover letter here..."
+        },
+        {
+          "id": "sep-referees",
+          "type": "sectionSeparator",
+          "propertyName": "sepReferees",
+          "label": "References"
+        },
+        {
+          "id": "cols-ref1",
+          "type": "columns",
+          "propertyName": "colsRef1",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-ref1a",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-refname1",
+                  "type": "textField",
+                  "propertyName": "RefereeName1",
+                  "label": "Referee 1 Name",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-ref1b",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-refemail1",
+                  "type": "textField",
+                  "propertyName": "RefereeEmail1",
+                  "label": "Referee 1 Email",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-ref1c",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-refphone1",
+                  "type": "textField",
+                  "propertyName": "RefereePhone1",
+                  "label": "Referee 1 Phone",
+                  "editMode": "editable"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cols-ref2",
+          "type": "columns",
+          "propertyName": "colsRef2",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-ref2a",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-refname2",
+                  "type": "textField",
+                  "propertyName": "RefereeName2",
+                  "label": "Referee 2 Name",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-ref2b",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-refemail2",
+                  "type": "textField",
+                  "propertyName": "RefereeEmail2",
+                  "label": "Referee 2 Email",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-ref2c",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-refphone2",
+                  "type": "textField",
+                  "propertyName": "RefereePhone2",
+                  "label": "Referee 2 Phone",
+                  "editMode": "editable"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fld-howhear",
+          "type": "textField",
+          "propertyName": "HowDidYouHear",
+          "label": "How did you hear about this vacancy?",
+          "editMode": "editable"
+        },
+        {
+          "id": "sep-submit",
+          "type": "sectionSeparator",
+          "propertyName": "sepSubmit",
+          "label": "Submit Application"
+        },
+        {
+          "id": "submit-row",
+          "type": "columns",
+          "propertyName": "submitRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-submit",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-submit",
+                  "type": "button",
+                  "propertyName": "btnSubmit",
+                  "label": "Submit Application",
+                  "editMode": "editable",
+                  "buttonType": "primary",
+                  "actionConfiguration": {
+                    "actionName": "Submit",
+                    "actionOwner": "shesha.form"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-cancel",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-cancel",
+                  "type": "button",
+                  "propertyName": "btnCancel",
+                  "label": "Cancel",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/no-auth/A.Test/erecruitment-public-jobs"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "A.Test.Domain.Domain.Recruitment.JobApplication",
+    "access": 5,
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 }
+  }
+}

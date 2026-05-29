@@ -1,0 +1,260 @@
+{
+  "components": [
+    {
+      "id": "root-container",
+      "type": "container",
+      "propertyName": "root",
+      "label": "",
+      "hidden": false,
+      "components": [
+        {
+          "id": "header-row",
+          "type": "columns",
+          "propertyName": "headerRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-back",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-back",
+                  "type": "button",
+                  "propertyName": "btnBack",
+                  "label": "Back",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "icon": "ArrowLeftOutlined",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/dynamic/A.Test/erecruitment-interviews-table"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-title",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "form-title",
+                  "type": "text",
+                  "propertyName": "formTitle",
+                  "content": "Interview Details",
+                  "fontSize": 22,
+                  "fontWeight": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sep-main",
+          "type": "sectionSeparator",
+          "propertyName": "sepMain",
+          "label": "Interview Information"
+        },
+        {
+          "id": "cols-main",
+          "type": "columns",
+          "propertyName": "colsMain",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-left",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-application",
+                  "type": "entityPicker",
+                  "propertyName": "JobApplication",
+                  "label": "Job Application",
+                  "editMode": "editable",
+                  "entityType": "A.Test.Domain.Domain.Recruitment.JobApplication",
+                  "title": "Select Application",
+                  "validate": { "required": true }
+                },
+                {
+                  "id": "fld-date",
+                  "type": "dateField",
+                  "propertyName": "InterviewDate",
+                  "label": "Interview Date",
+                  "editMode": "editable",
+                  "validate": { "required": true },
+                  "dateFormat": "DD/MM/YYYY",
+                  "picker": "date"
+                },
+                {
+                  "id": "fld-start",
+                  "type": "timePicker",
+                  "propertyName": "StartTime",
+                  "label": "Start Time",
+                  "editMode": "editable"
+                },
+                {
+                  "id": "fld-end",
+                  "type": "timePicker",
+                  "propertyName": "EndTime",
+                  "label": "End Time",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "col-right",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-venue",
+                  "type": "textField",
+                  "propertyName": "Venue",
+                  "label": "Venue / Link",
+                  "editMode": "editable"
+                },
+                {
+                  "id": "fld-type",
+                  "type": "dropdown",
+                  "propertyName": "InterviewType",
+                  "label": "Interview Type",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "InterviewType"
+                },
+                {
+                  "id": "fld-conductedby",
+                  "type": "entityPicker",
+                  "propertyName": "ConductedBy",
+                  "label": "Conducted By",
+                  "editMode": "editable",
+                  "entityType": "Shesha.Domain.Person",
+                  "title": "Select Interviewer"
+                },
+                {
+                  "id": "fld-score",
+                  "type": "numberField",
+                  "propertyName": "Score",
+                  "label": "Score",
+                  "editMode": "editable",
+                  "min": 0,
+                  "max": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fld-panel",
+          "type": "textArea",
+          "propertyName": "InterviewPanel",
+          "label": "Interview Panel",
+          "editMode": "editable",
+          "autoSize": { "minRows": 2 }
+        },
+        {
+          "id": "sep-outcome",
+          "type": "sectionSeparator",
+          "propertyName": "sepOutcome",
+          "label": "Outcome"
+        },
+        {
+          "id": "cols-outcome",
+          "type": "columns",
+          "propertyName": "colsOutcome",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-out",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "fld-outcome",
+                  "type": "dropdown",
+                  "propertyName": "Outcome",
+                  "label": "Outcome",
+                  "editMode": "editable",
+                  "dataSourceType": "referenceList",
+                  "referenceListNamespace": "A.Test",
+                  "referenceListName": "InterviewOutcome"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fld-comments",
+          "type": "textArea",
+          "propertyName": "Comments",
+          "label": "Comments / Notes",
+          "editMode": "editable",
+          "autoSize": { "minRows": 4 }
+        },
+        {
+          "id": "fld-recommendation",
+          "type": "textArea",
+          "propertyName": "Recommendation",
+          "label": "Recommendation",
+          "editMode": "editable",
+          "autoSize": { "minRows": 3 }
+        },
+        {
+          "id": "save-row",
+          "type": "columns",
+          "propertyName": "saveRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-save",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-save",
+                  "type": "button",
+                  "propertyName": "btnSave",
+                  "label": "Save Interview",
+                  "editMode": "editable",
+                  "buttonType": "primary",
+                  "actionConfiguration": {
+                    "actionName": "Submit",
+                    "actionOwner": "shesha.form"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-cancel",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-cancel",
+                  "type": "button",
+                  "propertyName": "btnCancel",
+                  "label": "Cancel",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/dynamic/A.Test/erecruitment-interviews-table"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "A.Test.Domain.Domain.Recruitment.Interview",
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 }
+  }
+}

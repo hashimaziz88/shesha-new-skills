@@ -1,0 +1,489 @@
+{
+  "components": [
+    {
+      "id": "root-container",
+      "type": "container",
+      "propertyName": "root",
+      "label": "",
+      "hidden": false,
+      "components": [
+        {
+          "id": "header-row",
+          "type": "columns",
+          "propertyName": "headerRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-back",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-back",
+                  "type": "button",
+                  "propertyName": "btnBack",
+                  "label": "Back to Applications",
+                  "editMode": "editable",
+                  "buttonType": "default",
+                  "icon": "ArrowLeftOutlined",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/dynamic/A.Test/erecruitment-applications-table"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "col-title",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "form-title",
+                  "type": "text",
+                  "propertyName": "formTitle",
+                  "content": "Application Details",
+                  "fontSize": 22,
+                  "fontWeight": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tabs-main",
+          "type": "tabs",
+          "propertyName": "tabsMain",
+          "label": "",
+          "tabs": [
+            {
+              "id": "tab-applicant",
+              "key": "applicant",
+              "title": "Applicant Info",
+              "components": [
+                {
+                  "id": "sep-personal",
+                  "type": "sectionSeparator",
+                  "propertyName": "sepPersonal",
+                  "label": "Personal Information"
+                },
+                {
+                  "id": "cols-personal",
+                  "type": "columns",
+                  "propertyName": "colsPersonal",
+                  "label": "",
+                  "columns": [
+                    {
+                      "id": "col-p1",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-candidate",
+                          "type": "entityPicker",
+                          "propertyName": "Candidate",
+                          "label": "Candidate",
+                          "editMode": "editable",
+                          "entityType": "Shesha.Domain.Person",
+                          "title": "Select Candidate"
+                        },
+                        {
+                          "id": "fld-appno",
+                          "type": "textField",
+                          "propertyName": "ApplicationNumber",
+                          "label": "Application Number",
+                          "editMode": "inherited",
+                          "readOnly": true
+                        },
+                        {
+                          "id": "fld-idnumber",
+                          "type": "textField",
+                          "propertyName": "IDNumber",
+                          "label": "ID Number",
+                          "editMode": "editable"
+                        },
+                        {
+                          "id": "fld-citizen",
+                          "type": "checkbox",
+                          "propertyName": "IsSACitizen",
+                          "label": "SA Citizen",
+                          "editMode": "editable"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-p2",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-race",
+                          "type": "dropdown",
+                          "propertyName": "Race",
+                          "label": "Race",
+                          "editMode": "editable",
+                          "dataSourceType": "referenceList",
+                          "referenceListNamespace": "A.Test",
+                          "referenceListName": "Race"
+                        },
+                        {
+                          "id": "fld-gender",
+                          "type": "dropdown",
+                          "propertyName": "Gender",
+                          "label": "Gender",
+                          "editMode": "editable",
+                          "dataSourceType": "referenceList",
+                          "referenceListNamespace": "A.Test",
+                          "referenceListName": "Gender"
+                        },
+                        {
+                          "id": "fld-disability",
+                          "type": "dropdown",
+                          "propertyName": "DisabilityStatus",
+                          "label": "Disability Status",
+                          "editMode": "editable",
+                          "dataSourceType": "referenceList",
+                          "referenceListNamespace": "A.Test",
+                          "referenceListName": "DisabilityStatus"
+                        },
+                        {
+                          "id": "fld-drivers",
+                          "type": "checkbox",
+                          "propertyName": "HasDriversLicense",
+                          "label": "Has Driver's License",
+                          "editMode": "editable"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "fld-qualifications",
+                  "type": "textArea",
+                  "propertyName": "Qualifications",
+                  "label": "Qualifications",
+                  "editMode": "editable",
+                  "autoSize": { "minRows": 3 }
+                },
+                {
+                  "id": "fld-experience",
+                  "type": "textArea",
+                  "propertyName": "WorkExperience",
+                  "label": "Work Experience",
+                  "editMode": "editable",
+                  "autoSize": { "minRows": 3 }
+                },
+                {
+                  "id": "fld-skills",
+                  "type": "textArea",
+                  "propertyName": "Skills",
+                  "label": "Skills",
+                  "editMode": "editable",
+                  "autoSize": { "minRows": 2 }
+                },
+                {
+                  "id": "fld-howhear",
+                  "type": "textField",
+                  "propertyName": "HowDidYouHear",
+                  "label": "How did you hear about this position?",
+                  "editMode": "editable"
+                }
+              ]
+            },
+            {
+              "id": "tab-cover",
+              "key": "cover",
+              "title": "Cover Letter",
+              "components": [
+                {
+                  "id": "fld-cover",
+                  "type": "textArea",
+                  "propertyName": "CoverLetter",
+                  "label": "Cover Letter",
+                  "editMode": "editable",
+                  "autoSize": { "minRows": 15 }
+                }
+              ]
+            },
+            {
+              "id": "tab-referees",
+              "key": "referees",
+              "title": "Referees",
+              "components": [
+                {
+                  "id": "sep-ref1",
+                  "type": "sectionSeparator",
+                  "propertyName": "sepRef1",
+                  "label": "Referee 1"
+                },
+                {
+                  "id": "cols-ref1",
+                  "type": "columns",
+                  "propertyName": "colsRef1",
+                  "label": "",
+                  "columns": [
+                    {
+                      "id": "col-ref1a",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-refname1",
+                          "type": "textField",
+                          "propertyName": "RefereeName1",
+                          "label": "Name",
+                          "editMode": "editable"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-ref1b",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-refemail1",
+                          "type": "textField",
+                          "propertyName": "RefereeEmail1",
+                          "label": "Email",
+                          "editMode": "editable"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-ref1c",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-refphone1",
+                          "type": "textField",
+                          "propertyName": "RefereePhone1",
+                          "label": "Phone",
+                          "editMode": "editable"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "sep-ref2",
+                  "type": "sectionSeparator",
+                  "propertyName": "sepRef2",
+                  "label": "Referee 2"
+                },
+                {
+                  "id": "cols-ref2",
+                  "type": "columns",
+                  "propertyName": "colsRef2",
+                  "label": "",
+                  "columns": [
+                    {
+                      "id": "col-ref2a",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-refname2",
+                          "type": "textField",
+                          "propertyName": "RefereeName2",
+                          "label": "Name",
+                          "editMode": "editable"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-ref2b",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-refemail2",
+                          "type": "textField",
+                          "propertyName": "RefereeEmail2",
+                          "label": "Email",
+                          "editMode": "editable"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-ref2c",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-refphone2",
+                          "type": "textField",
+                          "propertyName": "RefereePhone2",
+                          "label": "Phone",
+                          "editMode": "editable"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tab-status",
+              "key": "status",
+              "title": "Status Management",
+              "components": [
+                {
+                  "id": "sep-status",
+                  "type": "sectionSeparator",
+                  "propertyName": "sepStatus",
+                  "label": "Application Status"
+                },
+                {
+                  "id": "cols-status",
+                  "type": "columns",
+                  "propertyName": "colsStatus",
+                  "label": "",
+                  "columns": [
+                    {
+                      "id": "col-st1",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-status",
+                          "type": "dropdown",
+                          "propertyName": "Status",
+                          "label": "Current Status",
+                          "editMode": "editable",
+                          "dataSourceType": "referenceList",
+                          "referenceListNamespace": "A.Test",
+                          "referenceListName": "ApplicationStatus"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-st2",
+                      "flex": 1,
+                      "components": [
+                        {
+                          "id": "fld-datesubmitted",
+                          "type": "dateField",
+                          "propertyName": "DateSubmitted",
+                          "label": "Date Submitted",
+                          "editMode": "inherited",
+                          "readOnly": true,
+                          "dateFormat": "DD/MM/YYYY HH:mm",
+                          "picker": "date"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "sep-invite",
+                  "type": "sectionSeparator",
+                  "propertyName": "sepInvite",
+                  "label": "Invite to Interview"
+                },
+                {
+                  "id": "btn-row",
+                  "type": "columns",
+                  "propertyName": "btnRow",
+                  "label": "",
+                  "columns": [
+                    {
+                      "id": "col-btn-invite",
+                      "flex": 0,
+                      "components": [
+                        {
+                          "id": "btn-invite",
+                          "type": "button",
+                          "propertyName": "btnInvite",
+                          "label": "Invite to Interview",
+                          "editMode": "editable",
+                          "buttonType": "primary",
+                          "actionConfiguration": {
+                            "actionName": "Navigate",
+                            "actionOwner": "shesha.common",
+                            "configData": {
+                              "target": "/dynamic/A.Test/erecruitment-interview-details?applicationId={{data.Id}}"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-btn-accept",
+                      "flex": 0,
+                      "components": [
+                        {
+                          "id": "btn-accept",
+                          "type": "button",
+                          "propertyName": "btnAccept",
+                          "label": "Accept",
+                          "editMode": "editable",
+                          "buttonType": "primary",
+                          "actionConfiguration": {
+                            "actionName": "Execute Script",
+                            "actionOwner": "shesha.common",
+                            "configData": {
+                              "code": "try { await http.put('/api/dynamic/A.Test/job-application/Update', { id: data.Id, status: 4 }); message.success('Application accepted'); form.resetFields(); } catch(e) { message.error('Failed to update status: ' + e.message); }"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "col-btn-decline",
+                      "flex": 0,
+                      "components": [
+                        {
+                          "id": "btn-decline",
+                          "type": "button",
+                          "propertyName": "btnDecline",
+                          "label": "Decline",
+                          "editMode": "editable",
+                          "buttonType": "default",
+                          "danger": true,
+                          "actionConfiguration": {
+                            "actionName": "Execute Script",
+                            "actionOwner": "shesha.common",
+                            "configData": {
+                              "code": "try { await http.put('/api/dynamic/A.Test/job-application/Update', { id: data.Id, status: 5 }); message.success('Application declined'); form.resetFields(); } catch(e) { message.error('Failed to update status: ' + e.message); }"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "save-row",
+          "type": "columns",
+          "propertyName": "saveRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-save",
+              "flex": 0,
+              "components": [
+                {
+                  "id": "btn-save",
+                  "type": "button",
+                  "propertyName": "btnSave",
+                  "label": "Save",
+                  "editMode": "editable",
+                  "buttonType": "primary",
+                  "actionConfiguration": {
+                    "actionName": "Submit",
+                    "actionOwner": "shesha.form"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "modelType": "A.Test.Domain.Domain.Recruitment.JobApplication",
+    "layout": "horizontal",
+    "colon": true,
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "components": [
+    {
+      "id": "root-container",
+      "type": "container",
+      "propertyName": "root",
+      "label": "",
+      "hidden": false,
+      "components": [
+        {
+          "id": "header-row",
+          "type": "columns",
+          "propertyName": "headerRow",
+          "label": "",
+          "columns": [
+            {
+              "id": "col-title",
+              "flex": 1,
+              "components": [
+                {
+                  "id": "page-title",
+                  "type": "text",
+                  "propertyName": "pageTitle",
+                  "content": "Job Applications",
+                  "fontSize": 24,
+                  "fontWeight": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "dt-ctx",
+          "type": "datatableContext",
+          "propertyName": "dtCtx",
+          "label": "Applications Context",
+          "sourceType": "Entity",
+          "entityType": "A.Test.Domain.Domain.Recruitment.JobApplication",
+          "components": [
+            {
+              "id": "search-row",
+              "type": "columns",
+              "propertyName": "searchRow",
+              "label": "",
+              "columns": [
+                {
+                  "id": "col-qs",
+                  "flex": 1,
+                  "components": [
+                    {
+                      "id": "quick-search",
+                      "type": "datatable.quickSearch",
+                      "propertyName": "quickSearch",
+                      "label": "Search",
+                      "editMode": "editable",
+                      "placeholder": "Search applications..."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "applications-table",
+              "type": "datatable",
+              "propertyName": "applicationsTable",
+              "label": "Applications",
+              "useMultiselect": false,
+              "rowSelectionMode": "none",
+              "onRowDoubleClick": {
+                "actionName": "Navigate",
+                "actionOwner": "shesha.common",
+                "configData": {
+                  "target": "/dynamic/A.Test/erecruitment-application-details?id={{selectedRow.Id}}"
+                }
+              },
+              "columns": [
+                {
+                  "id": "col-appno",
+                  "columnType": "data",
+                  "propertyName": "ApplicationNumber",
+                  "caption": "Application #",
+                  "minWidth": 120
+                },
+                {
+                  "id": "col-candidate",
+                  "columnType": "data",
+                  "propertyName": "Candidate",
+                  "caption": "Candidate",
+                  "minWidth": 180
+                },
+                {
+                  "id": "col-posting",
+                  "columnType": "data",
+                  "propertyName": "JobPosting",
+                  "caption": "Job Posting",
+                  "minWidth": 200
+                },
+                {
+                  "id": "col-submitted",
+                  "columnType": "data",
+                  "propertyName": "DateSubmitted",
+                  "caption": "Date Submitted",
+                  "minWidth": 130
+                },
+                {
+                  "id": "col-status",
+                  "columnType": "data",
+                  "propertyName": "Status",
+                  "caption": "Status",
+                  "minWidth": 120
+                },
+                {
+                  "id": "col-actions",
+                  "columnType": "action",
+                  "caption": "View",
+                  "minWidth": 80,
+                  "icon": "EyeOutlined",
+                  "actionConfiguration": {
+                    "actionName": "Navigate",
+                    "actionOwner": "shesha.common",
+                    "configData": {
+                      "target": "/dynamic/A.Test/erecruitment-application-details?id={{currentRow.Id}}"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "pager",
+              "type": "datatable.pager",
+              "propertyName": "pager",
+              "label": "Pager",
+              "defaultPageSize": 20,
+              "showSizeChanger": true,
+              "showTotal": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "formSettings": {
+    "layout": "horizontal",
+    "colon": false,
+    "labelCol": { "span": 6 },
+    "wrapperCol": { "span": 18 }
+  }
+}
