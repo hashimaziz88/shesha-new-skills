@@ -20,7 +20,8 @@ const KEEP_FILES = new Set([
 ]);
 
 const args = process.argv.slice(2);
-const FLAG_NEW = args.includes('--new') || args.includes('-n');
+const FLAG_NEW  = args.includes('--new') || args.includes('-n');
+const FLAG_AUTO = args.includes('--auto') || args.includes('-a');
 
 /* ── helpers ── */
 
@@ -194,10 +195,10 @@ async function phaseStart() {
 
 /* ── Phase 2: record the iteration ── */
 async function phaseFinish() {
-  console.log(`\n  ${SKILL} — record iteration\n`);
+  console.log(`\n  ${SKILL} — record iteration${FLAG_AUTO ? ' (auto)' : ''}\n`);
 
   const pending = loadJSON(PENDING_PATH);
-  const apiUrl = getApiUrl();
+  const apiUrl  = getApiUrl();
 
   if (pending?.triggeredByVersion) {
     console.log(`  Triggered by run: ${pending.triggeredByVersion}`);
@@ -215,48 +216,51 @@ async function phaseFinish() {
     console.log('');
   }
 
-  // Version: AI or pending, with user confirm
   const versionDefault = aiMeta.version || pending?.triggeredByVersion || 'unknown';
-  const versionInput = await prompt(`Skill version this improves [${versionDefault}]: `);
-  const version = versionInput || versionDefault;
 
-  // Summary: AI suggestion with optional override
-  let summary;
-  if (aiMeta.summary) {
-    console.log(`\n  Summary (from AI):\n${aiMeta.summary}\n`);
-    const override = await prompt('Override summary? (Enter to keep): ');
-    summary = override || aiMeta.summary;
+  let version, summary, rationale, analysis, filesChanged, triggerRunIds;
+
+  if (FLAG_AUTO) {
+    version       = versionDefault;
+    summary       = aiMeta.summary       || null;
+    rationale     = aiMeta.rationale     || null;
+    analysis      = aiMeta.analysis      || null;
+    filesChanged  = aiMeta.filesChanged  || null;
+    triggerRunIds = aiMeta.triggerRunIds || null;
   } else {
-    summary = await promptMultiline('Summary — what was changed');
+    const versionInput = await prompt(`Skill version this improves [${versionDefault}]: `);
+    version = versionInput || versionDefault;
+
+    if (aiMeta.summary) {
+      console.log(`\n  Summary (from AI):\n${aiMeta.summary}\n`);
+      const override = await prompt('Override summary? (Enter to keep): ');
+      summary = override || aiMeta.summary;
+    } else {
+      summary = await promptMultiline('Summary — what was changed');
+    }
+
+    if (aiMeta.rationale) {
+      console.log(`\n  Rationale (from AI):\n${aiMeta.rationale}\n`);
+      const override = await prompt('Override rationale? (Enter to keep): ');
+      rationale = override || aiMeta.rationale;
+    } else {
+      rationale = await promptMultiline('Rationale — why (which findings prompted this)');
+    }
+
+    if (aiMeta.analysis) {
+      console.log(`\n  Analysis (from AI):\n${aiMeta.analysis}\n`);
+      const override = await prompt('Override analysis? (Enter to keep): ');
+      analysis = override || aiMeta.analysis;
+    } else {
+      analysis = await promptMultiline('Analysis — patterns found across runs');
+    }
+
+    filesChanged = aiMeta.filesChanged || await promptMultiline('Files changed (one per line)');
+
+    const triggerDefault = aiMeta.triggerRunIds || '';
+    const triggerInput   = await prompt(`Trigger run IDs [${triggerDefault || 'none'}]: `);
+    triggerRunIds = triggerInput || triggerDefault || null;
   }
-
-  // Rationale
-  let rationale;
-  if (aiMeta.rationale) {
-    console.log(`\n  Rationale (from AI):\n${aiMeta.rationale}\n`);
-    const override = await prompt('Override rationale? (Enter to keep): ');
-    rationale = override || aiMeta.rationale;
-  } else {
-    rationale = await promptMultiline('Rationale — why (which findings prompted this)');
-  }
-
-  // Analysis
-  let analysis;
-  if (aiMeta.analysis) {
-    console.log(`\n  Analysis (from AI):\n${aiMeta.analysis}\n`);
-    const override = await prompt('Override analysis? (Enter to keep): ');
-    analysis = override || aiMeta.analysis;
-  } else {
-    analysis = await promptMultiline('Analysis — patterns found across runs');
-  }
-
-  // Files changed
-  const filesChanged = aiMeta.filesChanged || await promptMultiline('Files changed (one per line)');
-
-  // Trigger run IDs
-  const triggerRunIdsDefault = aiMeta.triggerRunIds || '';
-  const triggerRunIdsInput = await prompt(`Trigger run IDs [${triggerRunIdsDefault || 'none'}]: `);
-  const triggerRunIds = triggerRunIdsInput || triggerRunIdsDefault || null;
 
   const iteration = {
     skill: SKILL,

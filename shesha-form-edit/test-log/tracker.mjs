@@ -20,8 +20,9 @@ const KEEP_FILES = new Set([
 ]);
 
 const args = process.argv.slice(2);
-const FLAG_NEW = args.includes('--new') || args.includes('-n');
+const FLAG_NEW        = args.includes('--new') || args.includes('-n');
 const FLAG_TEST_LOCAL = args.includes('--test-local') || args.includes('-l');
+const FLAG_AUTO       = args.includes('--auto') || args.includes('-a');
 
 /* ── helpers ── */
 
@@ -225,11 +226,11 @@ async function phaseStart() {
 
 /* ── Phase 2: record results ── */
 async function phaseFinish() {
-  console.log(`\n  ${SKILL} — record results\n`);
+  console.log(`\n  ${SKILL} — record results${FLAG_AUTO ? ' (auto)' : ''}\n`);
 
   let config = loadJSON(CONFIG_PATH) || { apiUrl: '' };
   if (!config.apiUrl && loadEnv().API_URL) config.apiUrl = loadEnv().API_URL;
-  if (!config.apiUrl) {
+  if (!config.apiUrl && !FLAG_AUTO) {
     const url = await prompt('API URL (or Enter to skip): ');
     if (url) { config.apiUrl = url.replace(/\/+$/, ''); saveJSON(CONFIG_PATH, config); }
   }
@@ -240,10 +241,13 @@ async function phaseFinish() {
 
   if (Object.keys(aiMeta).length) {
     console.log('  Auto-filled from AI:');
-    if (aiMeta.model)         console.log(`    Model  : ${aiMeta.model}`);
-    if (aiMeta.tokens != null) console.log(`    Tokens : ${aiMeta.tokens}`);
-    if (aiMeta.time   != null) console.log(`    Time   : ${aiMeta.time}s`);
-    if (aiMeta.commitMessage)  console.log(`    Commit : ${aiMeta.commitMessage}`);
+    if (aiMeta.model)         console.log(`    Model   : ${aiMeta.model}`);
+    if (aiMeta.tokens != null) console.log(`    Tokens  : ${aiMeta.tokens}`);
+    if (aiMeta.time   != null) console.log(`    Time    : ${aiMeta.time}s`);
+    if (aiMeta.commitMessage)  console.log(`    Commit  : ${aiMeta.commitMessage}`);
+    if (aiMeta.rating  != null) console.log(`    Rating  : ${aiMeta.rating}`);
+    if (aiMeta.passed  != null) console.log(`    Passed  : ${aiMeta.passed}`);
+    if (aiMeta.findings)       console.log(`    Findings: ${String(aiMeta.findings).split('\n')[0].slice(0, 80)}`);
     console.log('');
   }
 
@@ -254,13 +258,20 @@ async function phaseFinish() {
   }
 
   const version = pending?.version || aiMeta.version || await getLatestVersion(config.apiUrl).then(v => nextVersion(v)) || 'v0.0.1';
-  const versionInput = await prompt(`Version [${version}]: `);
-  const resolvedVersion = versionInput || version;
+  let resolvedVersion;
+  if (FLAG_AUTO) {
+    resolvedVersion = version;
+  } else {
+    const versionInput = await prompt(`Version [${version}]: `);
+    resolvedVersion = versionInput || version;
+  }
   const branch = pending?.branch || resolvedVersion;
 
-  // Commit message: AI suggestion with user override
+  // Commit message
   let commitMsg;
-  if (aiMeta.commitMessage) {
+  if (FLAG_AUTO) {
+    commitMsg = aiMeta.commitMessage || `test: auto-record ${resolvedVersion}`;
+  } else if (aiMeta.commitMessage) {
     const override = await prompt(`Commit message [${aiMeta.commitMessage}]: `);
     commitMsg = override || aiMeta.commitMessage;
   } else {
@@ -271,10 +282,18 @@ async function phaseFinish() {
   const tokens = aiMeta.tokens  ?? null;
   const time   = aiMeta.time    ?? null;
 
-  console.log('');
-  const rating  = await prompt('Rating 1-5: ');
-  const passed  = (await prompt('Passed (y/n): ')).toLowerCase() === 'y';
-  const findings = await promptMultiline('Findings');
+  // Rating / passed / findings — use aiMeta values in auto mode
+  let rating, passed, findings;
+  if (FLAG_AUTO) {
+    rating   = aiMeta.rating  != null ? String(aiMeta.rating) : '0';
+    passed   = aiMeta.passed  != null ? aiMeta.passed : false;
+    findings = aiMeta.findings || '';
+  } else {
+    console.log('');
+    rating   = await prompt('Rating 1-5: ');
+    passed   = (await prompt('Passed (y/n): ')).toLowerCase() === 'y';
+    findings = await promptMultiline('Findings');
+  }
 
   const remoteUrl = getGitRemote();
 
