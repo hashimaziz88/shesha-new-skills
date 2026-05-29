@@ -129,12 +129,14 @@ async function main() {
     try {
       await submitBtn.click({ timeout: 8_000 });
     } catch {
-      // Fallback: press Enter on the password field
       await inputs.nth(1).press('Enter');
     }
 
-    // Wait for redirect away from /login (up to 25s)
-    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 25_000 });
+    // Poll the URL manually — SPA redirect uses history API, not a 'load' navigation
+    for (let i = 0; i < 50 && page.url().includes('/login'); i++) {
+      await page.waitForTimeout(500);
+    }
+    if (page.url().includes('/login')) throw new Error('login did not redirect');
     console.error('Login succeeded');
   } catch (e) {
     await browser.close();

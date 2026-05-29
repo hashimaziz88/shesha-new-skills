@@ -18,6 +18,8 @@ allowed-tools:
 
 Round-trip: **GET form JSON → edit → PUT/POST it back**. Also creates new forms (`Create` then `UpdateMarkup`).
 
+> **For any new table / create / detail form, start from the canonical seeds in `assets/examples/` — see [references/examples.md](references/examples.md).** They are real Shesha-standard forms (verified rendering against a live backend) and encode the CRUD wiring most models get wrong: the **Add button opens the create form in a modal** (`Show Dialog`), detail views toggle edit in place (`Start Edit`/`Submit`), child tables use `tabs` + a `permanentFilter` on `{{data.id}}`, and inputs are chosen by the property's data type ([by-datatype.md](references/components/by-datatype.md)). Copy the matching example, swap entity/properties/captions/`formId`s, re-stamp `parentId`s, push. Don't hand-author structure the examples already provide.
+
 Args received: `$ARGUMENTS`. Flags: `--refresh-cache` (ignore TTL, re-distill metadata/seeds), `--no-browser` (skip Step 9 browser smoke), `--no-design` (skip Step 0 / 9.5 design passes).
 
 ## Step 0 — Design consultation (ask first)
@@ -86,7 +88,7 @@ Read **only** the topic files relevant to the edit. Most edits need 1–3 files:
 | Autocomplete, entityPicker | [references/components/selectors.md](references/components/selectors.md) |
 | Containers, card, columns, tabs | [references/components/containers.md](references/components/containers.md) |
 | Buttons, links, subForm, action wiring | [references/components/actions.md](references/components/actions.md) |
-| Datatable, datalist, dataTableContext | [references/components/data-tables.md](references/components/data-tables.md) |
+| Datatable, datalist, datatableContext / dataContext | [references/components/data-tables.md](references/components/data-tables.md) |
 | Component selection by property data type | [references/components/by-datatype.md](references/components/by-datatype.md) |
 | Child tables on a detail view (tabs + permanentFilter) | [references/components/child-tables.md](references/components/child-tables.md) |
 | Canonical example seeds (copy these first) | [references/examples.md](references/examples.md) |
