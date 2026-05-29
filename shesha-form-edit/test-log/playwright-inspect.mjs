@@ -57,9 +57,9 @@ async function getAuthToken() {
 }
 
 async function listForms(token) {
-  // Try paged endpoint first
+  // Shesha namespace (app namespace returns 404 for this endpoint)
   const res = await fetch(
-    `${BACKEND}/api/services/app/FormConfiguration/GetAll?maxResultCount=100&skipCount=0`,
+    `${BACKEND}/api/services/Shesha/FormConfiguration/GetAll?maxResultCount=100&skipCount=0`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!res.ok) throw new Error(`FormConfiguration/GetAll HTTP ${res.status}`);
@@ -67,7 +67,7 @@ async function listForms(token) {
   const items = data.result?.items ?? data.result ?? [];
   // Filter by module name (case-insensitive)
   return items.filter(f => {
-    const mod = (f.module?.name || f.moduleName || '').toLowerCase();
+    const mod = (typeof f.module === 'string' ? f.module : f.module?.name || f.moduleName || '').toLowerCase();
     return mod === MODULE.toLowerCase() || mod.includes(MODULE.toLowerCase());
   });
 }
@@ -107,20 +107,33 @@ async function main() {
   page.on('console', msg => { if (msg.type() === 'error') pageErrors.push(msg.text().slice(0, 200)); });
   page.on('pageerror', err => pageErrors.push(err.message.slice(0, 200)));
 
-  // Login
+  // Login — UI login with Shesha's ant-design form
   try {
-    await page.goto(`${FRONTEND}/login`, { waitUntil: 'networkidle', timeout: 30_000 });
+    await page.goto(`${FRONTEND}/login`, { waitUntil: 'load', timeout: 30_000 });
+    // Wait for inputs to appear (React hydration can take a moment)
+    await page.waitForSelector('input:not([type="hidden"])', { timeout: 15_000 });
+    await page.waitForTimeout(500);
 
-    const usernameField = page.locator('input[name="username"], input[placeholder*="ser"], input[id*="user"]').first();
-    const passwordField = page.locator('input[type="password"]').first();
+    // Fill credentials — use broad selectors for ant-design inputs
+    const inputs = page.locator('input:not([type="hidden"])');
+    const count = await inputs.count();
+    if (count >= 2) {
+      await inputs.nth(0).fill(USER);
+      await inputs.nth(1).fill(PASS);
+    } else {
+      throw new Error(`Only found ${count} inputs on login page`);
+    }
 
-    await usernameField.fill(USER);
-    await passwordField.fill(PASS);
-    await page.locator('button[type="submit"]').first().click();
-    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 20_000 });
+    // Click the submit button
+    const submitBtn = page.locator('button[type="submit"], .ant-btn-primary, button:has-text("Login"), button:has-text("Sign")').first();
+    await submitBtn.click({ timeout: 10_000 });
+
+    // Wait for redirect away from /login (up to 15s)
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 15_000 });
+    console.error('Login succeeded');
   } catch (e) {
     await browser.close();
-    out({ rating: 1, passed: false, findings: `Login failed at ${FRONTEND}/login: ${e.message.slice(0, 200)}`, total: forms.length, ok: 0, errored: forms.length });
+    out({ rating: 1, passed: false, findings: `Login failed: ${e.message.slice(0, 200)}`, total: forms.length, ok: 0, errored: forms.length });
     process.exit(0);
   }
 
@@ -135,11 +148,14 @@ async function main() {
     pageErrors.length = 0;
 
     try {
-      await page.goto(`${FRONTEND}/shesha/forms-designer?id=${formId}`, {
-        waitUntil: 'networkidle',
-        timeout: 25_000
+      // Live form URL: /dynamic/<module>/<form-name>
+      const moduleSlug = MODULE.toLowerCase().replace(/\s+/g, '-');
+      const formSlug   = (form.name || '').toLowerCase().replace(/\s+/g, '-');
+      await page.goto(`${FRONTEND}/dynamic/${moduleSlug}/${formSlug}`, {
+        waitUntil: 'load',
+        timeout: 20_000
       });
-      await page.waitForTimeout(2_500);
+      await page.waitForTimeout(4_000); // let React render complete
 
       const slug = formName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
       const ssPath = join(SS_DIR, `${slug}.png`);
