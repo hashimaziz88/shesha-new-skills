@@ -2,6 +2,8 @@ import { randomUUID } from 'crypto';
 
 const BASE_URL = 'http://localhost:21021';
 const MODULE_ID = '4817b124-8749-4d04-a96d-8cc6a5f19097'; // A.Test
+// CORRECT modelType — verified from existing Shesha system forms (users form uses Shesha.Core.Person)
+const PERSON_MODEL = 'Shesha.Core.Person';
 
 async function auth() {
   const r = await fetch(`${BASE_URL}/api/TokenAuth/Authenticate`, {
@@ -65,7 +67,7 @@ function buildContactsTable() {
 
   return {
     formSettings: {
-      modelType: 'Shesha.Domain.Person',
+      modelType: PERSON_MODEL,
       dataLoaderType: 'None',
       access: 3, version: 1
     },
@@ -74,6 +76,17 @@ function buildContactsTable() {
       display: 'flex', flexDirection: 'column', gap: 0,
       components: [{
         id: dcId, type: 'datatableContext', name: 'contactsContext',
+        // datatableContext MUST have explicit entityType + sourceType — does NOT inherit from formSettings
+        entityType: PERSON_MODEL,
+        sourceType: 'Entity',
+        dataFetchingMode: 'paging',
+        defaultPageSize: 10,
+        uniqueStateId: 'contactsContext',
+        componentName: 'contactsContext',
+        propertyName: 'contactsContext',
+        sortMode: 'standard',
+        allowReordering: 'no',
+        standardSorting: [{ id: randomUUID(), propertyName: 'firstName', sorting: 'asc' }],
         components: [
           {
             id: toolId, type: 'container', name: 'toolbar',
@@ -121,7 +134,7 @@ function buildContactDetail() {
 
   return {
     formSettings: {
-      modelType: 'Shesha.Domain.Person',
+      modelType: PERSON_MODEL,
       dataLoaderType: 'gql',
       dataSubmitterType: 'gql',
       layout: 'horizontal',
@@ -186,11 +199,11 @@ const token = await auth();
 console.log('Authenticated');
 
 console.log('\nCreating contacts-table...');
-const tid = await getOrCreateForm(token, 'contacts-table', 'Contacts - Table', 'Shesha.Domain.Person');
+const tid = await getOrCreateForm(token, 'contacts-table', 'Contacts - Table', PERSON_MODEL);
 await updateMarkup(token, tid, buildContactsTable());
 
 console.log('\nCreating contact-detail...');
-const did = await getOrCreateForm(token, 'contact-detail', 'Contact - Detail', 'Shesha.Domain.Person');
+const did = await getOrCreateForm(token, 'contact-detail', 'Contact - Detail', PERSON_MODEL);
 await updateMarkup(token, did, buildContactDetail());
 
 console.log('\nDone.');

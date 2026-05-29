@@ -58,11 +58,19 @@ If module + name only, resolve via `GetByName` ([api.md §3](references/api.md))
 
 Skip if `formSettings.dataLoaderType === "none"`. Otherwise fetch the entity's metadata and validate every `propertyName` in the edit.
 
-**Entity existence check (do this first for new forms)**: before building any form for an entity, verify the entity is registered: `GET $BASE_URL/api/services/app/Metadata/GetProperties?container=<fullEntityType>`. If the response returns an empty array or an error, **the entity does not exist in the backend** — stop and invoke `Skill(skill="shesha-developer:domain-model")` to scaffold it before continuing. Never build forms for entities that don't exist; they silently fail at runtime.
+**Get the exact `modelType` string first (critical — wrong type causes 500 errors at runtime):**
 
-1. Read `formSettings.modelType` from the form (Step 4).
-2. Fetch `/Metadata/Get?container=<modelType>` — recipe in [api.md §10](references/api.md). Cache raw to `.claude/cache/shesha-form-edit/metadata/<entity>.raw.json`; distill via `summarize.js --type metadata`.
-3. **Validate `propertyName` against the summary's property list** for every input component you're adding/editing. Surface mismatches before push.
+The `formSettings.modelType` must be the exact registered C# class name — e.g. `Shesha.Core.Person`, NOT `Shesha.Domain.Person`. Getting this wrong causes 500 errors in the browser when `datatableContext` tries to query the entity.
+
+Two ways to find it:
+1. **From an existing form**: `GET $BASE_URL/api/services/Shesha/FormConfiguration/GetAll?maxResultCount=50` — find a form bound to the same entity and read its `modelType`.
+2. **From entity config**: `GET $BASE_URL/api/services/app/EntityConfig/GetMainDataList?maxResultCount=200` — find the entity by `className` or `name` and use its `className` as `modelType`.
+
+**Entity existence check**: before building any form, verify the entity exists: `GET $BASE_URL/api/services/app/Metadata/GetProperties?container=<exactModelType>`. If the response returns an empty array or error, the entity does not exist — stop and invoke `Skill(skill="shesha-developer:domain-model")`. Never build forms for entities that don't exist; they silently fail at runtime.
+
+1. Read `formSettings.modelType` (the exact class name resolved above).
+2. Fetch `GET $BASE_URL/api/services/app/Metadata/GetProperties?container=<modelType>` — returns `result` as a direct array of properties (not wrapped). Cache to `.claude/cache/shesha-form-edit/metadata/<entity>.raw.json`.
+3. **Validate `propertyName` against the property list** for every input component you're adding/editing. Surface mismatches before push.
 
 TTL 24h; `--refresh-cache` forces re-fetch. If the metadata fetch returns nothing or surfaces a malformed entity, optionally invoke `Skill(skill="shesha-developer:test-entity-crud-api", args="--no-fix")` and fix entity bugs before continuing — a form bound to a broken entity will look fine in markup but fail at runtime.
 
@@ -191,10 +199,28 @@ Project-scoped learning state. **Skill reads `.summary.md` by default; opens raw
 
 ## Non-negotiables
 
-- **`parentId` on every component** — set to the direct parent's `id`; root-level components get `"root"`. Use `stampTree` (see Step 5). Missing `parentId` crashes the Shesha renderer with no useful error.
-- **`actionArguments.target`** for Navigate actions — not `configData.target`. Working pattern: `{ actionName: "Navigate", actionOwner: "shesha.common", actionArguments: { target: "/dynamic/..." } }`.
+- **`datatableContext` requires explicit `entityType` + `sourceType`** — it does NOT inherit from `formSettings.modelType`. A bare `datatableContext` without these props causes HTTP 500 on page load. Mandatory props: `entityType` (same value as `formSettings.modelType`), `sourceType: "Entity"`, `dataFetchingMode: "paging"`, `defaultPageSize: 10`, `uniqueStateId: "<componentName>"`, `componentName: "<name>"`, `propertyName: "<name>"`. Template:
+  ```json
+  {
+    "type": "datatableContext",
+    "entityType": "Shesha.Core.Person",
+    "sourceType": "Entity",
+    "dataFetchingMode": "paging",
+    "defaultPageSize": 10,
+    "uniqueStateId": "myTable",
+    "componentName": "myTable",
+    "propertyName": "myTable",
+    "sortMode": "standard",
+    "allowReordering": "no"
+  }
+  ```
+- **`parentId` on every component** — set to the direct parent's `id`; root-level components get `"root"`. Use `stampTree` (see Step 5). Missing `parentId` or all-`root` parentIds crashes the Shesha renderer with no useful error.
+- **`id` must be a real UUID** — use `crypto.randomUUID()` or `uuid.v4()`. Short placeholder IDs like `btn1`, `pr2` are NOT valid; the renderer ignores components with non-UUID ids, causing forms to render blank.
+- **`actionArguments.target`** for Navigate actions on buttons: `{ actionName: "Navigate", actionOwner: "shesha.common", actionArguments: { target: "/dynamic/..." } }`.
+- **Datatable row navigation** — use an action column item, NOT `onRowDoubleClick`. In `datatable.items`, add a column with `columnType: "action"`, `action: "navigate"`, `targetUrl: "/dynamic/<module>/<form>?id={{selectedRow.id}}"`, `icon: "EditOutlined"`, `minWidth: 30`. This is the pattern used by all Shesha system table forms.
 - **Preserve ids** on existing components — fresh GUIDs only on clones / new nodes.
-- **`editMode: "editable"`** on every interactive component (textField, dropdown, button, link, etc.) — see [edit-mode.md](references/components/edit-mode.md).
+- **`editMode: "inherited"`** on every interactive component (textField, dropdown, button, etc.). Do NOT use `"editable"` — real Shesha forms use `"inherited"` and the form-level context controls edit state. Using `"editable"` explicitly can break form-level edit-mode toggling.
+- **JSON-safe script strings** — ALL script values embedded in form JSON must be serialisable without breaking the outer `JSON.stringify`. Rules: (a) no template literals — use string concatenation instead of `` `${x}` ``; (b) no unescaped newlines — use `\n`; (c) no smart/curly quotes — use straight quotes; (d) validate every script-containing component with `node -e "JSON.stringify(comp)"` before push. A broken script string produces `"Expected ',' or '}' after property value"` parse errors in the browser.
 - **No `globalState`** for cross-form state. Default to `contexts.appContext` (app-wide) or `pageContext` (inter-page). `localStorage` / `sessionStorage` are OK only when state must survive a hard refresh AND the data is not sensitive (no auth tokens / PII) — see [shared-state.md](references/components/shared-state.md).
 - **API calls in scripts**: `try/catch` + `async/await` (no `.then()` chains) — see [scripts.md](references/components/scripts.md).
 - **`access: 5`** on anonymous forms (login, register, OTP). Verify post-push via re-fetch.

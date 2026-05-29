@@ -124,12 +124,17 @@ async function main() {
       throw new Error(`Only found ${count} inputs on login page`);
     }
 
-    // Click the submit button
-    const submitBtn = page.locator('button[type="submit"], .ant-btn-primary, button:has-text("Login"), button:has-text("Sign")').first();
-    await submitBtn.click({ timeout: 10_000 });
+    // Submit — try button click then Enter fallback
+    const submitBtn = page.locator('button[type="submit"], .ant-btn-primary, button:has-text("Login"), button:has-text("Sign in")').first();
+    try {
+      await submitBtn.click({ timeout: 8_000 });
+    } catch {
+      // Fallback: press Enter on the password field
+      await inputs.nth(1).press('Enter');
+    }
 
-    // Wait for redirect away from /login (up to 15s)
-    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 15_000 });
+    // Wait for redirect away from /login (up to 25s)
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 25_000 });
     console.error('Login succeeded');
   } catch (e) {
     await browser.close();
