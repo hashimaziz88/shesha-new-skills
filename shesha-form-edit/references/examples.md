@@ -4,6 +4,18 @@
 
 These contain template tokens `{{GEN_KEY}}` / `{{NEW_KEY}}` for some ids — replace each with a fresh `crypto.randomUUID()` (the same token must map to the same UUID within one form so parent/child links stay intact).
 
+### When you copy a seed, swap ALL of these (easy to miss):
+
+1. `formSettings.modelType` → the target entity full class name.
+2. Every `entityType` (string on `dataContext`; object `{name,module}` on `autocomplete`) → target entity.
+3. Each field's `propertyName`, `componentName`, `name`, `label` → the real entity property.
+4. The datatable `items` (columns) → the columns you want, with real `propertyName`s.
+5. The Add button's `actionArguments.formId` → `{ name: "<your-create-form>", module: "<module>" }`.
+6. **The title text** — the component with `componentName: "//*TITLE*//"`; set its `content` to your form's title (e.g. "Pay Grade Details"). Easy to leave as "Employee Details".
+7. **The `modelType` debug text** — the text component `componentName: "modelType"` literally prints the class name on the page. Delete it for a clean form, or repurpose it.
+8. `uniqueStateId` / `componentName` on the `dataContext` — give each table a unique id (don't leave `TABLE_VIEW_TEMPLATE_ID`) so multiple tables on a page don't share state.
+9. Re-run `stampTree` so every `parentId` is correct after edits (descend into `components`, `columns[].components`, `tabs[].components`, **and `content.components`** for collapsible panels).
+
 | Need | Example file | Use when |
 |---|---|---|
 | List/index page | `assets/examples/employee-table.json` | "table form", "list of X", "manage X" |

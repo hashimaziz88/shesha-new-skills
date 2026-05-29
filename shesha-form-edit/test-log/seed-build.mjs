@@ -116,7 +116,46 @@ function walk(nodes, cb) {
     if (c.components) walk(c.components, cb);
     if (c.columns) for (const col of c.columns) if (col?.components) walk(col.components, cb);
     if (c.tabs) for (const t of c.tabs) if (t?.components) walk(t.components, cb);
+    if (c.content?.components) walk(c.content.components, cb);   // collapsiblePanel content
+    if (c.header?.components)  walk(c.header.components,  cb);   // custom panel header
   }
+}
+
+// Detail form: swap entity + replace the detailsPanel fields, keep header buttonGroup intact.
+export function transformDetail(seedStr, { entityFull, fields, title }) {
+  let s = detokenize(seedStr);
+  const EMP = 'A.Test.Domain.Domain.Payroll.Employee';
+  s = s.split(EMP).join(entityFull);
+  const tree = JSON.parse(s);
+  if (tree.formSettings) tree.formSettings.modelType = entityFull;
+
+  // Swap the //*TITLE*// text component content to the friendly form title
+  if (title) walk(tree.components, c => {
+    if (c.type === 'text' && c.componentName === '//*TITLE*//') c.content = title;
+  });
+
+  const samples = {};
+  walk(tree.components, c => {
+    if (['textField','numberField','dateField','dropdown','autocomplete','textArea','checkbox'].includes(c.type) && !samples[c.type]) {
+      samples[c.type] = c;
+    }
+  });
+  const makeField = (f) => {
+    const base = samples[f.type] ? JSON.parse(JSON.stringify(samples[f.type])) : { type: f.type };
+    base.id = randomUUID();
+    base.propertyName = f.prop; base.componentName = f.prop; base.name = f.prop;
+    base.label = f.label; base.editMode = 'inherited';
+    delete base.parentId;
+    return base;
+  };
+  walk(tree.components, c => {
+    if (c.type === 'columns' && c.propertyName === 'detailsPanel') {
+      const cols = c.columns || [];
+      cols.forEach(col => col.components = []);
+      fields.forEach((f, i) => cols[i % cols.length].components.push(makeField(f)));
+    }
+  });
+  return tree;
 }
 
 // Re-stamp parentId across the whole tree so links are valid after edits.
@@ -127,6 +166,8 @@ export function stampTree(nodes, parentId) {
     if (n.components) n.components = stampTree(n.components, node.id);
     if (n.columns)    n.columns    = n.columns.map(col => ({ ...col, components: stampTree(col.components || [], node.id) }));
     if (n.tabs)       n.tabs       = n.tabs.map(t => ({ ...t, components: stampTree(t.components || [], node.id) }));
+    if (n.content?.components) n.content = { ...n.content, components: stampTree(n.content.components, node.id) };
+    if (n.header?.components)  n.header  = { ...n.header,  components: stampTree(n.header.components,  node.id) };
     return n;
   });
 }
