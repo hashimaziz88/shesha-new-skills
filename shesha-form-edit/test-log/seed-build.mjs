@@ -108,6 +108,63 @@ export function transformCreate(seedStr, { entityFull, fields }) {
   return tree;
 }
 
+// Detail form WITH child tables: swap parent + reconfigure the child tab's dataContext.
+export function transformDetailWithChild(seedStr, { entityFull, fields, title, child }) {
+  let s = detokenize(seedStr);
+  const EMP = 'A.Test.Domain.Domain.Payroll.Employee';
+  const PAYSLIP = 'A.Test.Domain.Domain.Payroll.Payslip';
+  // swap parent first (Employee → target), but NOT the child (Payslip) yet
+  s = s.split(EMP).join(entityFull);
+  const tree = JSON.parse(s);
+  if (tree.formSettings) tree.formSettings.modelType = entityFull;
+
+  if (title) walk(tree.components, c => {
+    if (c.type === 'text' && c.componentName === '//*TITLE*//') c.content = title;
+  });
+
+  const samples = {};
+  walk(tree.components, c => {
+    if (['textField','numberField','dateField','dropdown','autocomplete','textArea','checkbox'].includes(c.type) && !samples[c.type]) samples[c.type] = c;
+  });
+  const makeField = (f) => {
+    const base = samples[f.type] ? JSON.parse(JSON.stringify(samples[f.type])) : { type: f.type };
+    base.id = randomUUID(); base.propertyName = f.prop; base.componentName = f.prop;
+    base.name = f.prop; base.label = f.label; base.editMode = 'inherited';
+    delete base.parentId; return base;
+  };
+  walk(tree.components, c => {
+    if (c.type === 'columns' && c.propertyName === 'detailsPanel') {
+      const cols = c.columns || [];
+      cols.forEach(col => col.components = []);
+      fields.forEach((f, i) => cols[i % cols.length].components.push(makeField(f)));
+    }
+  });
+
+  // Reconfigure the child tab
+  walk(tree.components, c => {
+    if (c.type === 'dataContext' && String(c.componentName).toLowerCase().includes('child')) {
+      c.entityType = child.entityFull;
+      c.permanentFilter = {
+        and: [ { '==': [
+          { var: child.fkProperty },
+          { evaluate: [ { expression: '{{data.id}}', required: true, type: 'mustache' } ] }
+        ] } ]
+      };
+    }
+    if (c.type === 'datatable' && String(c.componentName).toLowerCase().includes('child')) {
+      c.items = child.columns.map((col, i) => ({
+        id: randomUUID(), itemType: 'item', sortOrder: i, columnType: 'data',
+        propertyName: col.prop, caption: col.caption, isVisible: true
+      }));
+    }
+  });
+  // set tab title
+  walk(tree.components, c => {
+    if (c.type === 'tabs' && Array.isArray(c.tabs) && c.tabs.length) c.tabs[0].title = child.tabTitle;
+  });
+  return tree;
+}
+
 function walk(nodes, cb) {
   if (!Array.isArray(nodes)) return;
   for (const c of nodes) {

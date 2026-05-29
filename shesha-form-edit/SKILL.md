@@ -87,6 +87,9 @@ Read **only** the topic files relevant to the edit. Most edits need 1–3 files:
 | Containers, card, columns, tabs | [references/components/containers.md](references/components/containers.md) |
 | Buttons, links, subForm, action wiring | [references/components/actions.md](references/components/actions.md) |
 | Datatable, datalist, dataTableContext | [references/components/data-tables.md](references/components/data-tables.md) |
+| Component selection by property data type | [references/components/by-datatype.md](references/components/by-datatype.md) |
+| Child tables on a detail view (tabs + permanentFilter) | [references/components/child-tables.md](references/components/child-tables.md) |
+| Canonical example seeds (copy these first) | [references/examples.md](references/examples.md) |
 | Embedded scripts, current user, async/try-catch | [references/components/scripts.md](references/components/scripts.md) |
 | Shared state (appContext, pageContext) | [references/components/shared-state.md](references/components/shared-state.md) |
 | editMode, visibility, permissions | [references/components/edit-mode.md](references/components/edit-mode.md) |
