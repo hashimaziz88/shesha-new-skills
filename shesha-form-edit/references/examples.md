@@ -30,6 +30,21 @@ These contain template tokens `{{GEN_KEY}}` / `{{NEW_KEY}}` for some ids — rep
 3. **Detail** opens a full record. The header `buttonGroup` carries the lifecycle: **Edit** = `Start Edit` (owner `shesha.form`), **Save** = `Submit` (owner `shesha.form`), **Cancel** = `Cancel Edit` (owner `shesha.form`), plus an optional **Audit Log** = `Show Dialog` → `entity-change-audit-log` (module `Shesha`). There is **no** manual navigate-back Save.
 4. **Child tables** live in a `tabs` component; each tab is a `dataContext` + `datatable` filtered to the parent.
 
+## Recommended improvement over the raw example: refresh the table after Add
+
+The captured `employee-table` Add button has `handleSuccess: false`, so creating a record (verified: `POST .../api/dynamic/<Module>/<Entity>/Crud/Create` → 200) closes the modal but **does not refresh the list** — the user must reload to see their new row. For better UX, set the Add button's action to refresh the table on success:
+
+```json
+"handleSuccess": true,
+"onSuccess": {
+  "_type": "action-config",
+  "actionName": "Refresh table",
+  "actionOwner": "<dataContext component id>"
+}
+```
+
+`actionOwner` must be the table's `dataContext` **component id** (the same owner the toolbar Refresh button uses). Keep `handleFail: true` + `onFail: Close Dialog`.
+
 ## Non-obvious specifics the examples encode
 
 - **Data context type is `dataContext`** (canonical here) with `sourceType: "Entity"`, `entityType: "<full.Class.Name>"`, `dataFetchingMode: "paging"`, `defaultPageSize: 10`, `uniqueStateId`, `componentName`, `propertyName`, `sortMode: "standard"`, `allowReordering: "no"`. (`datatableContext` is an accepted alias but match the example and use `dataContext`.)

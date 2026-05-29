@@ -46,7 +46,11 @@ export function transformTable(seedStr, { entityFull, createFormName, columns })
   s = JSON.stringify(m).split(EMP).join(entityFull);
   const tree = JSON.parse(s);
 
-  // walk + fix: datatable items, Add-button formId
+  // capture dataContext id (owner for the Refresh action)
+  let dcId = null;
+  walk(tree.components, c => { if (c.type === 'dataContext' && !dcId) dcId = c.id; });
+
+  // walk + fix: datatable items, Add-button formId + refresh-on-success
   walk(tree.components, c => {
     if (c.type === 'datatable') {
       c.items = columns.map((col, i) => ({
@@ -57,8 +61,14 @@ export function transformTable(seedStr, { entityFull, createFormName, columns })
     }
     if (c.type === 'buttonGroup' && Array.isArray(c.items)) {
       for (const it of c.items) {
-        const args = it.actionConfiguration?.actionArguments;
-        if (args?.formId?.name) { args.formId.name = createFormName; args.formId.module = MODULE; }
+        const ac = it.actionConfiguration;
+        if (ac?.actionArguments?.formId?.name) {
+          ac.actionArguments.formId.name = createFormName;
+          ac.actionArguments.formId.module = MODULE;
+          // refresh the table after a successful create (better UX than the raw example)
+          ac.handleSuccess = true;
+          ac.onSuccess = { _type: 'action-config', actionName: 'Refresh table', actionOwner: dcId, actionArguments: {} };
+        }
       }
     }
   });
