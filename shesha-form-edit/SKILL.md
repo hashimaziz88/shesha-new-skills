@@ -89,6 +89,24 @@ Read **only** the topic files relevant to the edit. Most edits need 1–3 files:
 
 **Proactive doc fetch**: when the user's requirements mention non-trivial mechanisms (wizard, OTP, navigator, complex appContext composition, custom action chaining), `WebFetch` the relevant `shesha-grads.vercel.app` / `docs.shesha.io` page **before** writing scripts. Distill into `.claude/cache/shesha-form-edit/docs/<topic>.summary.md` (~30 lines) so subsequent edits don't re-fetch.
 
+**Component plan + index check (mandatory, blocking — do this before writing any component JSON)**:
+
+For every new or edited form, before writing a single component object:
+
+1. **List every component `type` you plan to use.** (e.g. for a table form: `container`, `text`, `button`, `datatableContext`, `datatable`)
+
+2. **Confirm each type exists** in the `clean-form-config` component index:
+   ```
+   C:\Users\Lethabo\.claude\plugins\cache\shesha-plugins\shesha-developer\1.7.1\skills\clean-form-config\assets\groups\index.json
+   ```
+   If a type is missing, you have the wrong name. The index is the authoritative source for the exact `type` string used in form JSON (e.g. `datatableContext` not `dataTableContext`; `datatable` not `dataTable`).
+
+3. **Load the group file** for each component type (the index maps type → group file). Read the group file to get the full list of valid property names, their expected types, and descriptions. Only use properties listed there — anything else will be stripped by `clean-form-config` at Step 6.
+
+4. **Scan the group for alternatives.** While in the group file, check whether a better-fit component exists (e.g. `refListStatus` instead of `dropdown` for read-only status display, `columns` instead of nested `container` for side-by-side layout).
+
+5. **Update the plan** with corrected type names, valid properties, and any swapped alternatives — then write the JSON.
+
 Tree-editing principles: preserve every existing component's `id` and `parentId` (fresh GUIDs only on clones / new nodes); when re-parenting, update only the moved node and add it to the new parent's `components`; don't touch `formSettings` unless asked.
 
 ## Step 6 — Validate

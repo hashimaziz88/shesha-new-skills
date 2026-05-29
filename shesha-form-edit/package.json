@@ -1,0 +1,9 @@
+{
+  "name": "shesha-form-edit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test-log/tracker.mjs",
+    "iterate": "node test-log/iterate.mjs"
+  }
+}
