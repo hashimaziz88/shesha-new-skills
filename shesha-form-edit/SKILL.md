@@ -137,6 +137,25 @@ function stampTree(nodes, parentId) {
 // Usage: markup.components = stampTree(markup.components, 'root');
 ```
 
+## Step 5.5 — Pre-push JSON safety check (mandatory)
+
+Before calling UpdateMarkup, run this Node snippet to catch JSON-in-JSON errors that will cause `"Expected ',' or ']' after array element in JSON"` in the browser:
+
+```js
+const markup = { /* your form object */ };
+try {
+  const str = JSON.stringify(markup);
+  JSON.parse(str);        // must not throw
+  JSON.parse(JSON.stringify({ markup: str })); // round-trip test
+  console.log('JSON OK, length:', str.length);
+} catch (e) {
+  console.error('BROKEN JSON:', e.message);
+  process.exit(1);
+}
+```
+
+Common causes of failure: template literals (`` `${x}` ``) inside `dynamicEndpoint` or script fields — replace with string concatenation; literal newline characters in string values — replace with `\n`.
+
 ## Step 6 — Validate
 
 Walk tree (unique ids, valid types, valid parent chain); dead-prop check against `assets/component-properties.json`; runtime-type checks (booleans not `"true"`, numbers not `"42"`); dropdown `values` shape (`{ id, label, value }`); `node --check` each script string.
@@ -166,6 +185,19 @@ Success: HTTP 200 with `{ "result": ... }`.
 ## Step 8 — Verify
 
 Re-fetch via `GetByName`/`GetJson`; diff against what you sent. Surface any normalization the server applied. For anonymous forms (`access: 5`), confirm `result.access === 5` — the `Create` endpoint may not honor `access` on initial create; call `UpdateMarkup` once more if it didn't stick.
+
+## Step 8.5 — Diagnose common runtime errors
+
+After verifying, watch for these patterns in the browser console or from Playwright:
+
+| Error | Cause | Fix |
+|---|---|---|
+| `HTTP 400` on datatableContext data load | Entity doesn't have GQL query API enabled in backend | Invoke `shesha-developer:domain-model` to enable GQL on entity, or use `sourceType: "Url"` with an explicit REST endpoint |
+| `HTTP 404` on metadata fetch (`"Failed to fetch metadata of type …"`) | Wrong entity class name in `formSettings.modelType` | Re-verify entity type via `EntityConfig/GetMainDataList` or `FormConfiguration/GetAll` on existing forms |
+| `HTTP 500` on datatableContext | `entityType` or `sourceType` missing on `datatableContext` component | Add `entityType`, `sourceType: "Entity"`, `dataFetchingMode`, `defaultPageSize`, `uniqueStateId` |
+| `JSON parse error` in browser console | Malformed script string in form markup — template literals or literal newlines | Run Step 5.5 JSON safety check; replace template literals with concatenation |
+| Form shows blank/empty without error | Short IDs (`pr1`, `btn2`) or all-`root` parentIds | Re-run `stampTree`; ensure `crypto.randomUUID()` IDs |
+| Detail form shows blank when navigated to without `?id=` | Normal — `gql` loader has no ID to fetch | This is expected; test detail forms with `?id=<real-guid>` |
 
 ## Step 9 — Browser smoke (default; `--no-browser` opts out)
 
@@ -199,6 +231,7 @@ Project-scoped learning state. **Skill reads `.summary.md` by default; opens raw
 
 ## Non-negotiables
 
+- **`datatableContext` (lowercase t) is the correct type** — `dataTableContext` (capital T) is NOT a valid type and silently renders nothing. The clean-form-config index uses `datatableContext`; use that exact string.
 - **`datatableContext` requires explicit `entityType` + `sourceType`** — it does NOT inherit from `formSettings.modelType`. A bare `datatableContext` without these props causes HTTP 500 on page load. Mandatory props: `entityType` (same value as `formSettings.modelType`), `sourceType: "Entity"`, `dataFetchingMode: "paging"`, `defaultPageSize: 10`, `uniqueStateId: "<componentName>"`, `componentName: "<name>"`, `propertyName: "<name>"`. Template:
   ```json
   {
