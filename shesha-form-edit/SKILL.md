@@ -94,10 +94,13 @@ Read **only** the topic files relevant to the edit. Most edits need 1–3 files:
 | Layout pattern (full-page forms, auth) | [references/components/layout.md](references/components/layout.md) |
 
 **Seed discovery for new forms** (in this order):
-1. `assets/patterns/` — vendor seeds (index: [references/patterns.md](references/patterns.md)).
-2. `.claude/cache/shesha-form-edit/seeds/` — project-specific forms cached from prior edits.
-3. **MCP `search_forms`** — query `mcp__shesha__search_forms` for forms in this backend matching the layout type (e.g. "auth", "edit", "dashboard"). Use the closest match as a seed; cache it under `seeds/` for next time.
-4. Author from scratch only if no seed fits — guided by the design plan from Step 0.
+1. **`assets/examples/` — CANONICAL Shesha-standard seeds. Start here for any table / create / detail form.** See [references/examples.md](references/examples.md) for the index and the CRUD-loop wiring (modal Add button, Start Edit/Submit detail header, child-table tabs). Copy the matching example and change only `modelType`/`entityType`/`propertyName`/captions/`formId`s. This is the highest-priority source — these forms render correctly and follow standards.
+2. `assets/patterns/` — other vendor seeds (index: [references/patterns.md](references/patterns.md)).
+3. `.claude/cache/shesha-form-edit/seeds/` — project-specific forms cached from prior edits.
+4. **MCP `search_forms`** — query `mcp__shesha__search_forms` for forms in this backend matching the layout type. Use the closest match as a seed; cache it under `seeds/` for next time.
+5. Author from scratch only if no seed fits — guided by the design plan from Step 0.
+
+**Picking the input component for each field** — driven by the property's `dataType` (string→textField, number→numberField, date→dateField, reference-list-item→dropdown, entity FK→autocomplete, …). Full table + config in [references/components/by-datatype.md](references/components/by-datatype.md).
 
 **Proactive doc fetch**: when the user's requirements mention non-trivial mechanisms (wizard, OTP, navigator, complex appContext composition, custom action chaining), `WebFetch` the relevant `shesha-grads.vercel.app` / `docs.shesha.io` page **before** writing scripts. Distill into `.claude/cache/shesha-form-edit/docs/<topic>.summary.md` (~30 lines) so subsequent edits don't re-fetch.
 
