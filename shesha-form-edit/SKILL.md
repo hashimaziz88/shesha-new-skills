@@ -64,22 +64,13 @@ TTL 24h; `--refresh-cache` forces re-fetch. If the metadata fetch returns nothin
 
 ## Step 5 — Apply the user's requirements
 
-Read **only** the topic files relevant to the edit. Most edits need 1–3 files:
+**Component properties come exclusively from `clean-form-config` assets — do not guess, do not use memory, do not use any other reference file.** The authoritative source is:
 
-| Topic | File |
-|---|---|
-| Form structure, skeleton, IPropertySetting wrapper | [references/components/form-shape.md](references/components/form-shape.md) |
-| Inputs, validation, file uploads | [references/components/inputs.md](references/components/inputs.md) |
-| Dropdowns / radio / checkboxGroup / refListStatus | [references/components/dropdowns.md](references/components/dropdowns.md) |
-| Autocomplete, entityPicker | [references/components/selectors.md](references/components/selectors.md) |
-| Containers, card, columns, tabs | [references/components/containers.md](references/components/containers.md) |
-| Buttons, links, subForm, action wiring | [references/components/actions.md](references/components/actions.md) |
-| Datatable, datalist, dataTableContext | [references/components/data-tables.md](references/components/data-tables.md) |
-| Embedded scripts, current user, async/try-catch | [references/components/scripts.md](references/components/scripts.md) |
-| Shared state (appContext, pageContext) | [references/components/shared-state.md](references/components/shared-state.md) |
-| editMode, visibility, permissions | [references/components/edit-mode.md](references/components/edit-mode.md) |
-| v7 styling system (containers, borders, fonts, shadows, migration) | [references/components/styling-v7.md](references/components/styling-v7.md) |
-| Layout pattern (full-page forms, auth) | [references/components/layout.md](references/components/layout.md) |
+```
+C:\Users\Lethabo\.claude\plugins\cache\shesha-plugins\shesha-developer\1.7.1\skills\clean-form-config\assets\groups\
+```
+
+Read `index.json` to map component type → group file, then read the group file for valid prop names and types. Only set properties that appear in the group file definition. Any property not in the group file will be silently stripped by the server or crash the renderer.
 
 **Seed discovery for new forms** (in this order):
 1. `assets/patterns/` — vendor seeds (index: [references/patterns.md](references/patterns.md)).
@@ -107,19 +98,46 @@ For every new or edited form, before writing a single component object:
 
 5. **Update the plan** with corrected type names, valid properties, and any swapped alternatives — then write the JSON.
 
-Tree-editing principles: preserve every existing component's `id` and `parentId` (fresh GUIDs only on clones / new nodes); when re-parenting, update only the moved node and add it to the new parent's `components`; don't touch `formSettings` unless asked.
+Tree-editing principles:
+- **Every component must have `parentId`** set to its direct parent component's `id`. Root-level components get `parentId: "root"`. Components inside column slots get `parentId` = the `columns` component's `id` (not the slot's id). Missing `parentId` crashes the Shesha renderer entirely.
+- Preserve every existing component's `id` — fresh GUIDs only on new nodes.
+- When re-parenting, update only the moved node; don't touch `formSettings` unless asked.
 
 ## Step 6 — Validate
 
 Walk tree (unique ids, valid types, valid parent chain); dead-prop check against `assets/component-properties.json`; runtime-type checks (booleans not `"true"`, numbers not `"42"`); dropdown `values` shape (`{ id, label, value }`); `node --check` each script string.
 
-Then **invoke `clean-form-config` (mandatory, blocking)** — covers layout overflow, label-vs-propertyName refs, missing try/catch, missing async, broken script syntax:
+### clean-form-config (mandatory, blocking — two-path protocol)
+
+**Path A — skill available (preferred):**
 
 ```
 Skill(skill="shesha-developer:clean-form-config", args="<path to your edited form>")
 ```
 
-If validation fails, present issues to the user before pushing. **Never push a config that fails validation without user confirmation.**
+Invoke this for **every form you author or edit**, no exceptions. It covers layout overflow, label-vs-propertyName refs, missing try/catch, missing async, broken script syntax, and invalid property names.
+
+**Do NOT skip it because the form is "simple" or "just a table" — those are exactly the forms where wrong column names and missing editMode slip through.**
+
+**Path B — skill unavailable or returns invocation error:**
+
+If the Skill tool is unavailable or the `shesha-developer:clean-form-config` invocation itself errors (not a form-content error — an invocation failure), fall back to manual group-file validation:
+
+1. For every component `type` in your form, open its group file from:
+   ```
+   C:\Users\Lethabo\.claude\plugins\cache\shesha-plugins\shesha-developer\1.7.1\skills\clean-form-config\assets\groups\<group>.json
+   ```
+   (Use the `index.json` in that folder to map type → group file.)
+
+2. For each component instance, walk every property you set and confirm it exists in the group file definition. Remove any property that is not listed — unknown props are silently stripped by the server and can mask bugs.
+
+3. For interactive components (`textField`, `dropdown`, `button`, `entityPicker`, `checkbox`, etc.), confirm `editMode: "editable"` is present.
+
+4. For `datatableContext`, confirm `entityType` and `sourceType` are set on the **context**, not on the inner `datatable`.
+
+5. Log your manual check as a bullet list in your response so the user can audit it.
+
+**Either path must complete before Step 7.** If validation finds issues, present them to the user before pushing. **Never push a config that fails validation without user confirmation.**
 
 ## Step 7 — Push
 
@@ -171,12 +189,15 @@ Project-scoped learning state. **Skill reads `.summary.md` by default; opens raw
 
 ## Non-negotiables
 
-- **Preserve ids** on existing components — fresh GUIDs only on clones / new nodes.
-- **`editMode: "editable"`** on every interactive component (textField, dropdown, button, link, etc.) — see [edit-mode.md](references/components/edit-mode.md).
-- **No `globalState`** for cross-form state. Default to `contexts.appContext` (app-wide) or `pageContext` (inter-page). `localStorage` / `sessionStorage` are OK only when state must survive a hard refresh AND the data is not sensitive (no auth tokens / PII) — see [shared-state.md](references/components/shared-state.md).
-- **API calls in scripts**: `try/catch` + `async/await` (no `.then()` chains) — see [scripts.md](references/components/scripts.md).
+- **`parentId` on every component** — set to the parent's `id`; root components get `"root"`. Missing `parentId` crashes the renderer.
+- **Preserve ids** on existing components — fresh GUIDs only on new nodes.
+- **`editMode: "editable"`** on every interactive component (textField, dropdown, button, entityPicker, checkbox, etc.).
+- **Only use props from clean-form-config group files** — any unknown prop is silently stripped by the server or causes a crash.
+- **`actionConfiguration.actionArguments.target`** for Navigate — not `configData.target`.
+- **No `globalState`** for cross-form state — use `contexts.appContext` (app-wide) or `pageContext` (inter-page).
+- **API calls in scripts**: `try/catch` + `async/await` (no `.then()` chains).
 - **`access: 5`** on anonymous forms (login, register, OTP). Verify post-push via re-fetch.
-- **PowerShell + non-ASCII body**: pass UTF-8 bytes (em dashes / curly quotes trigger server 500 — `Unable to translate bytes [E2] ... from specified code page to Unicode`). Use `[System.Text.Encoding]::UTF8.GetBytes($jsonBody)` or `curl --data-binary @file`. Recipe in [api.md](references/api.md).
+- **PowerShell + non-ASCII body**: pass UTF-8 bytes. Use `[System.Text.Encoding]::UTF8.GetBytes($jsonBody)` or `curl --data-binary @file`. Recipe in [api.md](references/api.md).
 
 ## Doc fallback
 
