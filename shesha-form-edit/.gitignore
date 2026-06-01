@@ -1,0 +1,8 @@
+node_modules/
+test-log/runs.json
+test-log/iterations.json
+test-log/config.json
+.current-prompt.md
+test-log/pending.json
+test-log/completed.json
+.env
