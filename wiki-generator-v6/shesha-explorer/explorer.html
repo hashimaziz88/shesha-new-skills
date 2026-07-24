@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SheshaExplorer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg:        #0d0f14;
+    --surface:   #141720;
+    --border:    #1e2330;
+    --border2:   #2a3045;
+    --text:      #c8cdd8;
+    --muted:     #5a6278;
+    --accent:    #4f9ef8;
+
+    --svc:   #38bdf8;  /* AppServiceMethod  — sky blue  */
+    --ent:   #4ade80;  /* DomainEntity      — green     */
+    --rep:   #facc15;  /* Repository        — yellow    */
+    --api:   #c084fc;  /* ApiEndpoint       — purple    */
+    --perm:  #f87171;  /* PermissionCheck   — red       */
+    --hot:   #fb923c;  /* hotspot ring      — orange    */
+    --dead:  #475569;  /* dead node         — slate     */
+
+    --panel: 320px;
+    --list:  260px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 48px 1fr;
+    grid-template-columns: var(--list) 1fr var(--panel);
+  }
+
+  /* ── HEADER ── */
+  header {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .header-stats { font-size: 11px; color: var(--muted); margin-left: auto; }
+  .header-stats span { color: var(--text); margin-left: 6px; }
+
+  #load-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: .06em;
+  }
+  #load-btn:hover { background: #7ab8fa; }
+  #file-input { display: none; }
+
+  #help-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    cursor: pointer;
+    letter-spacing: .04em;
+    transition: border-color .15s, color .15s;
+  }
+  #help-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── MODAL ── */
+  #help-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  #help-overlay.open { display: flex; }
+
+  #help-modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    width: 560px;
+    max-width: 94vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.6);
+  }
+
+  #help-modal-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  #help-modal-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    flex: 1;
+  }
+  #help-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  #help-close:hover { color: var(--text); background: var(--border); }
+
+  #help-panels {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .help-panel {
+    display: none;
+    padding: 20px 22px;
+    overflow-y: auto;
+    height: 100%;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .help-panel.active { display: block; }
+  .help-panel h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .help-panel p { margin-bottom: 10px; color: var(--muted); }
+  .help-panel p strong { color: var(--text); }
+
+  .help-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 11px;
+  }
+  .help-table th {
+    text-align: left;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: .08em;
+  }
+  .help-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  .help-table tr:last-child td { border-bottom: none; }
+  .help-table .dot-cell { width: 14px; }
+
+  .dot-sm {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  .ring-sm {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--hot);
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  #help-footer {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    gap: 10px;
+  }
+  .help-dots {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
+  .help-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--border2);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .help-dot.active { background: var(--accent); }
+  .help-nav {
+    background: var(--border);
+    border: none;
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .help-nav:hover { background: var(--border2); }
+  .help-nav:disabled { opacity: .3; cursor: default; }
+
+  /* ── LEFT: NODE LIST ── */
+  #node-list-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #search-wrap {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  #search {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 8px;
+    outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+
+  #filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fchip {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: .55;
+    transition: opacity .15s, border-color .15s;
+  }
+  .fchip.active { opacity: 1; border-color: currentColor; }
+  .fchip[data-type="AppServiceMethod"] { color: var(--svc); }
+  .fchip[data-type="DomainEntity"]     { color: var(--ent); }
+  .fchip[data-type="Repository"]       { color: var(--rep); }
+  .fchip[data-type="ApiEndpoint"]      { color: var(--api); }
+  .fchip[data-type="PermissionCheck"]  { color: var(--perm); }
+  .fchip[data-type="Hotspot"]          { color: var(--hot); }
+  .fchip[data-type="Dead"]             { color: var(--dead); }
+
+  #node-list {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+  .node-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    border-left: 2px solid transparent;
+    transition: background .1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .node-item:hover   { background: var(--border); }
+  .node-item.selected { background: #1a2035; border-left-color: var(--accent); }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .node-name { overflow: hidden; text-overflow: ellipsis; }
+  .node-ns   { font-size: 9px; color: var(--muted); margin-left: auto; flex-shrink: 0; }
+
+  /* ── CENTRE: GRAPH ── */
+  #graph-wrap {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  #canvas { width: 100%; height: 100%; }
+
+  #graph-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 12px;
+    pointer-events: none;
+  }
+  #graph-hint .big { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--border2); }
+
+  .graph-controls {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .gc-btn {
+    width: 28px; height: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gc-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* CA generation pulse ring */
+  @keyframes pulse {
+    0%   { r: 12; opacity: .9; }
+    100% { r: 22; opacity: 0; }
+  }
+  .pulse-ring { animation: pulse .6s ease-out forwards; }
+
+  /* ── RIGHT: DETAIL PANEL ── */
+  #detail-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: 11px;
+  }
+  #detail-panel .dp-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  #dp-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .dp-row { margin-bottom: 10px; }
+  .dp-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+  .dp-value { color: var(--text); word-break: break-all; }
+  .dp-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  .dp-section-title {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    margin: 12px 0 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .edge-row {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .edge-target { color: var(--accent); cursor: pointer; }
+  .edge-target:hover { text-decoration: underline; }
+  .edge-rel { font-size: 9px; color: var(--muted); }
+
+  #ca-panel {
+    border-top: 1px solid var(--border);
+    padding: 10px 12px;
+  }
+  #ca-title { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 6px; }
+  #ca-run-btn {
+    width: 100%;
+    background: #1a2a1a;
+    border: 1px solid #4ade80;
+    border-radius: 4px;
+    color: #4ade80;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  #ca-run-btn:hover { background: #223322; }
+  #ca-result { margin-top: 6px; font-size: 10px; color: var(--muted); }
+
+  /* ── EMPTY / LOADING STATES ── */
+  #empty-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* scrollbars */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SheshaExplorer</h1>
+  <button id="load-btn" onclick="document.getElementById('file-input').click()">
+    Load graph.json
+  </button>
+  <input type="file" id="file-input" accept=".json">
+  <button id="help-btn" onclick="openHelp()">? Help</button>
+  <div class="header-stats" id="header-stats" style="display:none">
+    Nodes <span id="stat-nodes">—</span>
+    &nbsp;·&nbsp; Edges <span id="stat-edges">—</span>
+    &nbsp;·&nbsp; Hotspots <span id="stat-hot">—</span>
+    &nbsp;·&nbsp; Dead <span id="stat-dead">—</span>
+    &nbsp;·&nbsp; Max Risk <span id="stat-risk">—</span>
+  </div>
+</header>
+
+<!-- LEFT: node list -->
+<div id="node-list-panel">
+  <div id="search-wrap">
+    <input id="search" type="text" placeholder="/ search nodes…" autocomplete="off">
+  </div>
+  <div id="filter-bar">
+    <span class="fchip active" data-type="AppServiceMethod">SVC</span>
+    <span class="fchip active" data-type="DomainEntity">ENT</span>
+    <span class="fchip active" data-type="Repository">REP</span>
+    <span class="fchip active" data-type="ApiEndpoint">API</span>
+    <span class="fchip active" data-type="PermissionCheck">PRM</span>
+    <span class="fchip active" data-type="Hotspot">🔥</span>
+    <span class="fchip active" data-type="Dead">💀</span>
+  </div>
+  <div id="node-list"></div>
+</div>
+
+<!-- CENTRE: graph -->
+<div id="graph-wrap">
+  <div id="graph-hint">
+    <div class="big">◈</div>
+    <div>Load a graph.json file to begin</div>
+    <div style="font-size:10px">Run SheshaExplorer to generate graph.json</div>
+  </div>
+  <svg id="canvas"></svg>
+  <div class="graph-controls">
+    <button class="gc-btn" title="Zoom in"  onclick="zoomBy(1.3)">+</button>
+    <button class="gc-btn" title="Zoom out" onclick="zoomBy(0.77)">−</button>
+    <button class="gc-btn" title="Reset"    onclick="resetZoom()">⊙</button>
+  </div>
+</div>
+
+<!-- RIGHT: detail panel -->
+<div id="detail-panel">
+  <div class="dp-header" id="dp-header">Node Detail</div>
+  <div id="dp-body">
+    <div id="empty-detail">
+      <div style="font-size:24px;color:var(--border2)">◈</div>
+      <div>Select a node to inspect it</div>
+      <div style="font-size:10px;margin-top:4px">Click in the graph or the list</div>
+    </div>
+  </div>
+  <div id="ca-panel" style="display:none">
+    <div id="ca-title">Cellular Automaton Propagation</div>
+    <button id="ca-run-btn">▶ Propagate from this node</button>
+    <div id="ca-result"></div>
+  </div>
+</div>
+
+<!-- ── HELP MODAL ── -->
+<div id="help-overlay" onclick="overlayClick(event)">
+  <div id="help-modal">
+    <div id="help-modal-header">
+      <h2>SheshaExplorer — How it works</h2>
+      <button id="help-close" onclick="closeHelp()">✕</button>
+    </div>
+
+    <div id="help-panels">
+
+      <!-- Panel 1 -->
+      <div class="help-panel active" data-panel="0">
+        <h3>What you're looking at</h3>
+        <p>SheshaExplorer maps your Shesha .NET project into a <strong>relationship graph</strong> by reflecting your compiled assemblies. Every AppService method, Domain Entity, Repository, API Endpoint, and Permission becomes a <strong>node</strong>. The connections between them — who calls what, what is authorised by which permission, which service operates on which entity — become <strong>edges</strong>.</p>
+        <p>Load a <strong>graph.json</strong> file produced by running SheshaExplorer against your project's compiled DLLs. Once loaded, every node is clickable. The right panel shows its details, relationships, and lets you run the cellular automaton from it.</p>
+        <p style="color:var(--accent);font-size:11px">Use <strong>/</strong> to search · <strong>↑↓</strong> to navigate · <strong>Enter</strong> to propagate CA · <strong>Esc</strong> to clear</p>
+      </div>
+
+      <!-- Panel 2 -->
+      <div class="help-panel" data-panel="1">
+        <h3>The five node types</h3>
+        <table class="help-table">
+          <thead>
+            <tr><th>Colour</th><th>Type</th><th>What it represents</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="dot-sm" style="background:var(--svc)"></span></td>
+              <td>AppService method</td>
+              <td>Business logic — a method on a class inheriting <code>ApplicationService</code></td>
+            </tr>
+            <tr>
+              <td><span class="dot-sm" style="background:var(--ent)"></span></td>
+              <td>Domain Entity</td>
+              <td>A database-mapped class inheriting <code>Entity</code> or <code>FullAuditedEntity</code></td>
+            </tr>
+            <tr>
+              <td><span class="dot-sm" style="background:var(--rep)"></span></td>
+              <td>Repository</td>
+              <td>An <code>IRepository</code> interface or implementation</td>
+            </tr>
+            <tr>
+              <td><span class="dot-sm" style="background:var(--api)"></span></td>
+              <td>API Endpoint</td>
+              <td>A controller action with an HTTP verb attribute</td>
+            </tr>
+            <tr>
+              <td><span class="dot-sm" style="background:var(--perm)"></span></td>
+              <td>Permission</td>
+              <td>A <code>[ShaAuthorize]</code> permission definition</td>
+            </tr>
+            <tr>
+              <td><span class="ring-sm"></span></td>
+              <td>Hotspot</td>
+              <td>Any node with a coupling score ≥ 3.0 — change carefully</td>
+            </tr>
+            <tr>
+              <td><span class="dot-sm" style="background:var(--dead)"></span></td>
+              <td>Dead candidate</td>
+              <td>A node never reached from any entry point — possible dead code</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Use the filter chips in the left panel to show or hide any node type.</p>
+      </div>
+
+      <!-- Panel 3 -->
+      <div class="help-panel" data-panel="2">
+        <h3>The cellular automaton</h3>
+        <p>Click any node then press <strong>"Propagate from this node"</strong> in the right panel (or press <strong>Enter</strong>). The CA seeds from that node at <strong>generation 0</strong>.</p>
+        <p>In <strong>generation 1</strong> every directly connected node activates. In <strong>generation 2</strong> every node connected to those activates. This continues until nothing new fires.</p>
+        <p>The result is the complete <strong>blast radius</strong> — everything that could be affected if the selected node changes. Activated nodes stay bright. Unaffected nodes grey out.</p>
+        <p>Nodes that are <strong>never activated</strong> from any entry point across all runs are dead code candidates — nothing in the system reaches them through any path.</p>
+        <p>Press <strong>Escape</strong> to clear the propagation and restore the full graph view.</p>
+      </div>
+
+      <!-- Panel 4 -->
+      <div class="help-panel" data-panel="3">
+        <h3>Coupling scores</h3>
+        <p>The coupling score is computed by running the CA from every <strong>AppService method</strong> and <strong>API endpoint</strong> in the project, and recording at which generation each node was activated. The <strong>mean activation generation</strong> is the score.</p>
+        <p><strong>Score 1.0</strong> — only ever reached directly from one or two places. Safe to change in isolation.</p>
+        <p><strong>Score 3.0+</strong> — reached after many hops from many different starting points. Many things depend on it indirectly. Shown with an <span style="color:var(--hot)">orange ring</span> in the graph.</p>
+        <p><strong>Score 4.0+</strong> — highly coupled. A change here has a wide blast radius. Deserves extra test coverage and careful code review before modifying.</p>
+        <p>The coupling score does <strong>not</strong> mean the code is buggy — it means it is load-bearing. The most important nodes in a well-designed system will naturally have high scores.</p>
+      </div>
+
+      <!-- Panel 5 -->
+      <div class="help-panel" data-panel="4">
+        <h3>Keyboard shortcuts</h3>
+        <table class="help-table">
+          <thead>
+            <tr><th>Key</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/</code></td><td>Focus search box</td></tr>
+            <tr><td><code>↑ ↓</code></td><td>Navigate node list</td></tr>
+            <tr><td><code>Enter</code></td><td>Propagate CA from selected node</td></tr>
+            <tr><td><code>Escape</code></td><td>Clear CA propagation, restore full graph</td></tr>
+            <tr><td>Click node (graph)</td><td>Select node and show detail panel</td></tr>
+            <tr><td>Click node (list)</td><td>Select node, pan graph to it</td></tr>
+            <tr><td>Click edge target</td><td>Jump to that node</td></tr>
+            <tr><td>Drag node</td><td>Pin node position in graph</td></tr>
+            <tr><td><code>+</code> / <code>−</code> buttons</td><td>Zoom in / out</td></tr>
+            <tr><td><code>⊙</code> button</td><td>Reset zoom to default</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px">Once you've explored the graph, tell Claude Code: <strong>"generate the wiki from graph.json"</strong> to produce a full ADO Wiki page from this data.</p>
+      </div>
+
+    </div><!-- end help-panels -->
+
+    <div id="help-footer">
+      <button class="help-nav" id="help-prev" onclick="helpNav(-1)" disabled>← Prev</button>
+      <div class="help-dots" id="help-dots"></div>
+      <button class="help-nav" id="help-next" onclick="helpNav(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+let G = null;           // full graph data
+let selectedId = null;
+let caActive   = new Set();  // nodes lit by CA
+let caGens     = new Map();  // nodeId → generation
+
+const NODE_COLOR = {
+  AppServiceMethod: 'var(--svc)',
+  DomainEntity:     'var(--ent)',
+  Repository:       'var(--rep)',
+  ApiEndpoint:      'var(--api)',
+  PermissionCheck:  'var(--perm)',
+};
+
+// D3 simulation
+let simulation = null;
+let svg = null, zoomBeh = null, container = null;
+let nodeCircles = null, linkLines = null, nodeLabels = null;
+
+// Active type filters
+const activeFilters = new Set([
+  'AppServiceMethod','DomainEntity','Repository',
+  'ApiEndpoint','PermissionCheck','Hotspot','Dead'
+]);
+
+// ── Load file ──────────────────────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      G = JSON.parse(ev.target.result);
+      initGraph();
+    } catch(err) {
+      alert('Failed to parse graph.json: ' + err.message);
+    }
+  };
+  reader.readAsText(f);
+});
+
+document.getElementById('search').addEventListener('input', renderList);
+document.getElementById('search').addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); moveCursor(1); }
+  if (e.key === 'ArrowUp')   { e.preventDefault(); moveCursor(-1); }
+  if (e.key === 'Enter')     { e.preventDefault(); selectCursorNode(); }
+});
+
+document.querySelectorAll('.fchip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const t = chip.dataset.type;
+    if (activeFilters.has(t)) { activeFilters.delete(t); chip.classList.remove('active'); }
+    else                       { activeFilters.add(t);    chip.classList.add('active'); }
+    renderList();
+    if (simulation) updateGraphVisibility();
+  });
+});
+
+// ── Init D3 graph ─────────────────────────────────────────────────────────────
+function initGraph() {
+  if (!G) return;
+  document.getElementById('graph-hint').style.display = 'none';
+  document.getElementById('header-stats').style.display = '';
+  document.getElementById('stat-nodes').textContent = G.summary.totalNodes;
+  document.getElementById('stat-edges').textContent = G.summary.totalEdges;
+  document.getElementById('stat-hot').textContent   = G.summary.hotspots;
+  document.getElementById('stat-dead').textContent  = G.summary.deadCandidates;
+  document.getElementById('stat-risk').textContent  = G.summary.maxRiskScore?.toFixed(1) ?? '—';
+
+  renderList();
+
+  const wrap = document.getElementById('graph-wrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+
+  svg = d3.select('#canvas')
+    .attr('width', W).attr('height', H);
+  svg.selectAll('*').remove();
+
+  zoomBeh = d3.zoom().scaleExtent([0.05, 4])
+    .on('zoom', ev => container.attr('transform', ev.transform));
+  svg.call(zoomBeh);
+
+  container = svg.append('g');
+
+  // Arrow marker
+  svg.append('defs').append('marker')
+    .attr('id','arrow')
+    .attr('viewBox','0 -4 8 8')
+    .attr('refX', 14).attr('refY', 0)
+    .attr('markerWidth', 5).attr('markerHeight', 5)
+    .attr('orient','auto')
+    .append('path')
+      .attr('d','M0,-4L8,0L0,4')
+      .attr('fill','#2a3045');
+
+  const deadIds = new Set((G.deadCandidates || []).map(n => n.id));
+
+  const nodes = G.nodes.map(n => ({
+    ...n,
+    isDead: deadIds.has(n.id),
+    x: W/2 + (Math.random()-.5)*400,
+    y: H/2 + (Math.random()-.5)*400
+  }));
+  const nodeById = new Map(nodes.map(n => [n.id, n]));
+
+  const links = (G.edges || [])
+    .filter(e => nodeById.has(e.from) && nodeById.has(e.to))
+    .map(e => ({ source: e.from, target: e.to, rel: e.rel }));
+
+  linkLines = container.append('g')
+    .selectAll('line')
+    .data(links).join('line')
+      .attr('stroke', '#1e2330')
+      .attr('stroke-width', .8)
+      .attr('marker-end','url(#arrow)');
+
+  nodeCircles = container.append('g')
+    .selectAll('circle')
+    .data(nodes).join('circle')
+      .attr('r', d => d.riskScore >= 6 ? 11 : d.isHotspot ? 9 : 6)
+      .attr('fill', d => d.isDead ? 'var(--dead)' : NODE_COLOR[d.type] || '#888')
+      .attr('stroke', d => d.isHotspot ? 'var(--hot)' : 'transparent')
+      .attr('stroke-width', 2)
+      .attr('opacity', .9)
+      .style('cursor', 'pointer')
+      .on('click', (ev, d) => selectNode(d.id))
+      .call(d3.drag()
+        .on('start', (ev, d) => { if (!ev.active) simulation.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
+        .on('drag',  (ev, d) => { d.fx=ev.x; d.fy=ev.y; })
+        .on('end',   (ev, d) => { if (!ev.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; })
+      );
+
+  nodeLabels = container.append('g')
+    .selectAll('text')
+    .data(nodes).join('text')
+      .text(d => d.name.length > 22 ? d.name.slice(0,20)+'…' : d.name)
+      .attr('font-size', 9)
+      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr('fill', 'var(--muted)')
+      .attr('dy', -10)
+      .attr('text-anchor','middle')
+      .style('pointer-events','none');
+
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d=>d.id).distance(60).strength(.4))
+    .force('charge', d3.forceManyBody().strength(-120))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collision', d3.forceCollide(14))
+    .on('tick', () => {
+      linkLines
+        .attr('x1', d=>d.source.x).attr('y1', d=>d.source.y)
+        .attr('x2', d=>d.target.x).attr('y2', d=>d.target.y);
+      nodeCircles.attr('cx', d=>d.x).attr('cy', d=>d.y);
+      nodeLabels.attr('x', d=>d.x).attr('y', d=>d.y);
+    });
+}
+
+function updateGraphVisibility() {
+  if (!nodeCircles) return;
+  const deadIds = new Set((G.deadCandidates||[]).map(n=>n.id));
+  nodeCircles.attr('opacity', d => {
+    if (!activeFilters.has(d.type)) return .05;
+    if (d.isHotspot && !activeFilters.has('Hotspot')) return .05;
+    if (d.isDead    && !activeFilters.has('Dead'))    return .05;
+    return .9;
+  });
+}
+
+// ── Node list ─────────────────────────────────────────────────────────────────
+let listCursor = -1;
+let filteredNodes = [];
+
+function renderList() {
+  if (!G) return;
+  const q = document.getElementById('search').value.toLowerCase();
+  const deadIds = new Set((G.deadCandidates||[]).map(n=>n.id));
+
+  filteredNodes = G.nodes.filter(n => {
+    if (!activeFilters.has(n.type)) return false;
+    if (n.isHotspot && !activeFilters.has('Hotspot')) return false;
+    if (deadIds.has(n.id) && !activeFilters.has('Dead')) return false;
+    if (q && !n.name.toLowerCase().includes(q) &&
+             !n.namespace.toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => (b.riskScore ?? 0) - (a.riskScore ?? 0));  // default: highest risk first
+
+  listCursor = -1;
+  const list = document.getElementById('node-list');
+  list.innerHTML = '';
+
+  filteredNodes.forEach((n, i) => {
+    const div = document.createElement('div');
+    div.className = 'node-item' + (n.id === selectedId ? ' selected' : '');
+    div.dataset.idx = i;
+    div.innerHTML = `
+      <span class="dot" style="background:${NODE_COLOR[n.type]||'#888'};
+        ${deadIds.has(n.id)?'opacity:.4':''}
+        ${n.isHotspot?'box-shadow:0 0 4px var(--hot)':''}"></span>
+      <span class="node-name">${n.name}</span>
+      ${n.riskScore > 0 ? `<span style="font-size:9px;color:${n.riskScore>=4?'var(--hot)':n.riskScore>=2?'var(--text)':'var(--muted)'};margin-left:auto;flex-shrink:0">${n.riskScore.toFixed(1)}</span>` : ''}
+      <span class="node-ns">${n.namespace.split('.').pop()}</span>
+    `;
+    div.addEventListener('click', () => selectNode(n.id));
+    list.appendChild(div);
+  });
+}
+
+function moveCursor(dir) {
+  listCursor = Math.max(0, Math.min(filteredNodes.length-1, listCursor + dir));
+  const items = document.querySelectorAll('.node-item');
+  items.forEach((el,i) => el.classList.toggle('selected', i === listCursor));
+  items[listCursor]?.scrollIntoView({ block:'nearest' });
+}
+
+function selectCursorNode() {
+  if (listCursor >= 0 && filteredNodes[listCursor])
+    selectNode(filteredNodes[listCursor].id);
+}
+
+// ── Select node ───────────────────────────────────────────────────────────────
+function selectNode(id) {
+  selectedId = id;
+  caActive.clear(); caGens.clear();
+  renderList();
+  renderDetail(id);
+  highlightInGraph(id);
+}
+
+function highlightInGraph(id) {
+  if (!nodeCircles) return;
+  nodeCircles
+    .attr('stroke', d => d.id === id ? '#fff' : (d.isHotspot ? 'var(--hot)' : 'transparent'))
+    .attr('stroke-width', d => d.id === id ? 2.5 : 2);
+  // Pan to selected node
+  const node = (simulation?.nodes() || []).find(n => n.id === id);
+  if (node && svg && zoomBeh) {
+    const wrap = document.getElementById('graph-wrap');
+    const W = wrap.clientWidth, H = wrap.clientHeight;
+    svg.transition().duration(400).call(
+      zoomBeh.transform,
+      d3.zoomIdentity
+        .translate(W/2, H/2)
+        .scale(1.2)
+        .translate(-node.x, -node.y)
+    );
+  }
+}
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+function renderDetail(id) {
+  if (!G) return;
+  const node = G.nodes.find(n => n.id === id);
+  if (!node) return;
+
+  const smells = G.smells.filter(s => s.nodeId === id);
+  const outEdges = G.edges.filter(e => e.from === id);
+  const inEdges  = G.edges.filter(e => e.to   === id);
+  const isDead   = G.deadCandidates.some(n => n.id === id);
+
+  document.getElementById('dp-header').textContent = node.name;
+  document.getElementById('ca-panel').style.display = '';
+
+  const color = NODE_COLOR[node.type] || '#888';
+
+  let html = `
+    <div class="dp-row">
+      <div class="dp-label">Type</div>
+      <div class="dp-value">
+        <span class="dp-badge" style="background:${color}22;color:${color}">${node.type}</span>
+        ${node.isHotspot ? '<span class="dp-badge" style="background:#fb923c22;color:var(--hot)">🔥 HOTSPOT</span>' : ''}
+        ${isDead ? '<span class="dp-badge" style="background:#47556922;color:var(--dead)">💀 DEAD CANDIDATE</span>' : ''}
+      </div>
+    </div>
+    <div class="dp-row">
+      <div class="dp-label">Namespace</div>
+      <div class="dp-value" style="color:var(--muted)">${node.namespace}</div>
+    </div>
+    <div class="dp-row">
+      <div class="dp-label">Signature</div>
+      <div class="dp-value" style="color:var(--muted);font-size:10px">${node.signature || '—'}</div>
+    </div>
+    ${node.endGoal ? `
+    <div class="dp-row">
+      <div class="dp-label">End-goal</div>
+      <div class="dp-value" style="color:var(--ent)">${node.endGoal}</div>
+    </div>` : ''}
+    ${node.couplingScore > 0 ? `
+    <div class="dp-row">
+      <div class="dp-label">Coupling score</div>
+      <div class="dp-value" style="color:${node.couplingScore>=3?'var(--hot)':'var(--text)'}">${node.couplingScore.toFixed(2)}</div>
+    </div>` : ''}
+    ${(node.smellCount ?? 0) > 0 ? `
+    <div class="dp-row">
+      <div class="dp-label">Smell count</div>
+      <div class="dp-value" style="color:var(--perm)">${node.smellCount}</div>
+    </div>` : ''}
+    ${(node.riskScore ?? 0) > 0 ? `
+    <div class="dp-row">
+      <div class="dp-label">Risk score</div>
+      <div class="dp-value" style="color:${(node.riskScore??0)>=4?'var(--hot)':(node.riskScore??0)>=2?'var(--text)':'var(--muted)'}">
+        ${node.riskScore.toFixed(2)}
+        <span style="font-size:9px;color:var(--muted);margin-left:6px">mean: ${G.summary.meanRiskScore?.toFixed(2) ?? '—'}</span>
+      </div>
+    </div>` : ''}
+  `;
+
+  if (smells.length > 0) {
+    html += `<div class="dp-section-title">⚠️ Code Smells</div>`;
+    smells.forEach(s => s.issues.forEach(issue => {
+      html += `<div class="edge-row"><div style="color:#fbbf24;font-size:10px">${issue}</div></div>`;
+    }));
+  }
+
+  if (outEdges.length > 0) {
+    html += `<div class="dp-section-title">→ Calls / Relations (${outEdges.length})</div>`;
+    outEdges.slice(0,30).forEach(e => {
+      const target = G.nodes.find(n => n.id === e.to);
+      const c = NODE_COLOR[target?.type] || '#888';
+      html += `<div class="edge-row">
+        <div class="edge-target" style="color:${c}" onclick="selectNode('${e.to}')">${target?.name || e.to}</div>
+        <div class="edge-rel">${e.rel}${e.note ? ' · ' + e.note : ''}</div>
+      </div>`;
+    });
+    if (outEdges.length > 30) html += `<div style="color:var(--muted);font-size:10px;padding:4px 0">…and ${outEdges.length-30} more</div>`;
+  }
+
+  if (inEdges.length > 0) {
+    html += `<div class="dp-section-title">← Called by (${inEdges.length})</div>`;
+    inEdges.slice(0,30).forEach(e => {
+      const src = G.nodes.find(n => n.id === e.from);
+      const c = NODE_COLOR[src?.type] || '#888';
+      html += `<div class="edge-row">
+        <div class="edge-target" style="color:${c}" onclick="selectNode('${e.from}')">${src?.name || e.from}</div>
+        <div class="edge-rel">${e.rel}</div>
+      </div>`;
+    });
+    if (inEdges.length > 30) html += `<div style="color:var(--muted);font-size:10px;padding:4px 0">…and ${inEdges.length-30} more</div>`;
+  }
+
+  document.getElementById('dp-body').innerHTML = html;
+  document.getElementById('ca-result').textContent = '';
+  document.getElementById('ca-run-btn').onclick = () => runCA(id);
+}
+
+// ── Cellular automaton ────────────────────────────────────────────────────────
+function runCA(seedId) {
+  if (!G) return;
+  caActive.clear();
+  caGens.clear();
+
+  // BFS propagation (mirrors Automaton.cs RunFrom)
+  const activated = new Map([[seedId, 0]]);
+  let frontier = new Set([seedId]);
+  let gen = 0;
+
+  while (frontier.size > 0) {
+    gen++;
+    const next = new Set();
+    for (const id of frontier) {
+      // outgoing + incoming neighbours
+      const neighbours = new Set([
+        ...G.edges.filter(e => e.from === id).map(e => e.to),
+        ...G.edges.filter(e => e.to   === id).map(e => e.from)
+      ]);
+      for (const nid of neighbours) {
+        if (!activated.has(nid)) {
+          activated.set(nid, gen);
+          next.add(nid);
+        }
+      }
+    }
+    frontier = next;
+  }
+
+  caGens  = activated;
+  caActive = new Set(activated.keys());
+
+  // Update graph colours
+  if (nodeCircles) {
+    nodeCircles
+      .attr('fill', d => {
+        if (!caActive.has(d.id)) return '#1e2330';
+        const g = caGens.get(d.id);
+        if (g === 0) return '#ffffff';
+        if (g === 1) return NODE_COLOR[d.type] || '#888';
+        if (g === 2) return NODE_COLOR[d.type]?.replace('var(--','').replace(')','') ? NODE_COLOR[d.type] : '#888';
+        return NODE_COLOR[d.type] || '#888';
+      })
+      .attr('opacity', d => caActive.has(d.id) ? 1 : .08)
+      .attr('stroke', d => d.id === seedId ? '#fff' : (d.isHotspot ? 'var(--hot)' : 'transparent'));
+  }
+
+  document.getElementById('ca-result').textContent =
+    `Activated ${caActive.size} nodes across ${gen} generation${gen!==1?'s':''}.`;
+}
+
+// ── Zoom controls ─────────────────────────────────────────────────────────────
+function zoomBy(factor) {
+  if (!svg || !zoomBeh) return;
+  svg.transition().duration(250).call(zoomBeh.scaleBy, factor);
+}
+function resetZoom() {
+  if (!svg || !zoomBeh) return;
+  svg.transition().duration(350).call(zoomBeh.transform, d3.zoomIdentity);
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Modal escape handled separately above
+  if (document.getElementById('help-overlay').classList.contains('open')) return;
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === '/') { e.preventDefault(); document.getElementById('search').focus(); }
+  if (e.key === 'ArrowDown') moveCursor(1);
+  if (e.key === 'ArrowUp')   moveCursor(-1);
+  if (e.key === 'Enter' && selectedId) runCA(selectedId);
+  if (e.key === 'Escape') {
+    caActive.clear(); caGens.clear();
+    if (nodeCircles) {
+      nodeCircles
+        .attr('fill', d => NODE_COLOR[d.type] || '#888')
+        .attr('opacity', .9);
+    }
+    document.getElementById('ca-result').textContent = '';
+  }
+});
+
+// ── Help modal ────────────────────────────────────────────────────────────────
+let helpPage = 0;
+const HELP_TOTAL = 5;
+
+function buildDots() {
+  const container = document.getElementById('help-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < HELP_TOTAL; i++) {
+    const d = document.createElement('span');
+    d.className = 'help-dot' + (i === helpPage ? ' active' : '');
+    d.onclick = () => goHelpPage(i);
+    container.appendChild(d);
+  }
+}
+
+function goHelpPage(n) {
+  document.querySelectorAll('.help-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === n);
+  });
+  helpPage = n;
+  document.getElementById('help-prev').disabled = n === 0;
+  document.getElementById('help-next').disabled = n === HELP_TOTAL - 1;
+  buildDots();
+}
+
+function helpNav(dir) {
+  goHelpPage(Math.max(0, Math.min(HELP_TOTAL - 1, helpPage + dir)));
+}
+
+function openHelp() {
+  helpPage = 0;
+  goHelpPage(0);
+  document.getElementById('help-overlay').classList.add('open');
+}
+
+function closeHelp() {
+  document.getElementById('help-overlay').classList.remove('open');
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('help-overlay')) closeHelp();
+}
+
+// Close on Escape (extend existing keydown handler)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('help-overlay').classList.contains('open')) {
+    closeHelp();
+    return;
+  }
+});
+
+// Init dots on load
+buildDots();
+
+</script>
+</body>
+</html>

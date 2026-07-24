@@ -1,0 +1,14 @@
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\bin\Release\net8.0\shesha-explorer.exe
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\bin\Release\net8.0\shesha-explorer.deps.json
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\bin\Release\net8.0\shesha-explorer.runtimeconfig.json
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\bin\Release\net8.0\shesha-explorer.dll
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\bin\Release\net8.0\shesha-explorer.pdb
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\SheshaExplorer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\SheshaExplorer.AssemblyInfoInputs.cache
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\SheshaExplorer.AssemblyInfo.cs
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\SheshaExplorer.csproj.CoreCompileInputs.cache
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\shesha-explorer.dll
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\refint\shesha-explorer.dll
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\shesha-explorer.pdb
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\SheshaExplorer.genruntimeconfig.cache
+C:\Users\Emmanuel\Documents\SKILL_LAB\wiki-generator-v6\shesha-explorer\src\obj\Release\net8.0\ref\shesha-explorer.dll
