@@ -1,3 +1,8 @@
 {
-  "vault_path": "C:\\Users\\Emmanuel\\Documents\\two_Heads\\claude-memory"
+  "models": {
+    "extractor": "claude-haiku-5-5",
+    "checker": "claude-haiku-5-5",
+    "guard": "claude-haiku-5-5",
+    "fallback": "claude-haiku-5-5"
+  }
 }

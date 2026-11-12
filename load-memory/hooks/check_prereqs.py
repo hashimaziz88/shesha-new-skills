@@ -23,6 +23,18 @@ warnings = []
 notes = []
 
 
+def configured_models() -> list:
+    """Distinct models from ~/.claude/hooks/memory_config.json -> models,
+    in config order. Falls back to the hooks' built-in defaults."""
+    defaults = ["claude-sonnet-5-5", "claude-haiku-5-5"]
+    try:
+        cfg = json.loads((CLAUDE_DIR / "hooks" / "memory_config.json").read_text(encoding="utf-8"))
+        models = [str(m).strip() for m in ((cfg or {}).get("models") or {}).values() if str(m).strip()]
+    except (OSError, ValueError, TypeError, AttributeError):
+        models = []
+    return list(dict.fromkeys(models or defaults))
+
+
 def check(label: str, ok: bool, detail: str, blocking: bool = True) -> None:
     mark = "PASS" if ok else ("FAIL" if blocking else "WARN")
     print(f"[{mark}] {label}: {detail}")
@@ -54,38 +66,41 @@ def main() -> int:
     # 4. Headless mode + the exact flags the hooks pass. This is the real test:
     #    if this works, hooks can call the model with no API key, on the
     #    existing subscription login.
+    #    Tests every distinct model the hooks are configured to use
+    #    (memory_config.json -> models), so a bad model name fails here
+    #    instead of silently inside a hook.
     if claude_path:
-        try:
-            r = subprocess.run(
-                ["claude", "-p", "Reply with exactly: ok",
-                 "--output-format", "json",
-                 "--safe-mode",
-                 "--system-prompt", "You are a plain text assistant. Answer concisely.",
-                 "--allowedTools", "",
-                 "--strict-mcp-config",
-                 "--no-session-persistence",
-                 "--max-budget-usd", "0.50"],
-                capture_output=True, text=True, timeout=180
-            )
-            if r.returncode == 0:
-                payload = json.loads(r.stdout)
-                result = str(payload.get("result", "")).strip()
-                usage = payload.get("usage", {}) or {}
-                check("headless `claude -p` with hook flags", bool(result), f"returned {result!r}")
-                notes.append(
-                    "First call cost ~{:.2f} USD-equivalent ({} cache-creation tokens); "
-                    "repeat calls with identical flags hit the 1h prompt cache and cost far less.".format(
-                        float(payload.get("total_cost_usd") or 0),
-                        usage.get("cache_creation_input_tokens", "?"),
-                    )
+        for model in configured_models():
+            label = f"headless `claude -p` with hook flags [{model}]"
+            try:
+                r = subprocess.run(
+                    ["claude", "-p", "Reply with exactly: ok",
+                     "--output-format", "json",
+                     "--safe-mode",
+                     "--model", model,
+                     "--system-prompt", "You are a plain text assistant. Answer concisely.",
+                     "--allowedTools", "",
+                     "--strict-mcp-config",
+                     "--no-session-persistence",
+                     "--max-budget-usd", "0.50"],
+                    capture_output=True, text=True, timeout=180
                 )
-            else:
-                check("headless `claude -p` with hook flags", False,
-                      f"exit {r.returncode}: {(r.stderr or '')[:200]}")
-        except subprocess.TimeoutExpired:
-            check("headless `claude -p` with hook flags", False, "timed out after 180s")
-        except (OSError, json.JSONDecodeError) as e:
-            check("headless `claude -p` with hook flags", False, f"failed: {e}")
+                if r.returncode == 0:
+                    payload = json.loads(r.stdout)
+                    result = str(payload.get("result", "")).strip()
+                    ok = bool(result) and not payload.get("is_error")
+                    check(label, ok, f"returned {result!r}")
+                    notes.append(
+                        "{}: call cost ~{:.3f} USD-equivalent; repeat calls with identical flags "
+                        "hit the 1h prompt cache and cost less.".format(
+                            model, float(payload.get("total_cost_usd") or 0))
+                    )
+                else:
+                    check(label, False, f"exit {r.returncode}: {(r.stderr or r.stdout or '')[:200]}")
+            except subprocess.TimeoutExpired:
+                check(label, False, "timed out after 180s")
+            except (OSError, json.JSONDecodeError) as e:
+                check(label, False, f"failed: {e}")
 
     # 5. Auth style. An API key works too, but the whole point of this design is
     #    riding the subscription login, so report which one is in play.

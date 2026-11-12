@@ -101,15 +101,28 @@ These scripts live where `~/.claude/settings.json` points, in
 `~/.claude/hooks/`. This section documents that existing setup. The files are
 not moved or copied here; reorganizing them into this skill folder is deferred.
 
-| Script | Event (settings.json) | Purpose |
-|---|---|---|
-| `memory_context_checker.py` | `UserPromptSubmit` | Per-prompt recall check against the vault |
-| `memory_extractor.py` | `Stop` | Extracts new transcript content into the vault; line-cursor state |
-| `log-session.js` | `Stop` | Session logging; errors are swallowed (`|| true`) |
-| `load_memory.py` | manual (this skill) | Loads the vault; `--catch-up` runs the extractor |
-| `check_prereqs.py` | manual / setup | Checks prerequisites for the memory tooling |
-| `failure_clarification_guard.py` | `PreToolUse` | Detects a stuck or looping agent and asks the user for clarification |
-| `memory_config.json` | read by the scripts | Holds `vault_path` |
+| Script | Event (settings.json) | Model (config key) | Purpose |
+|---|---|---|---|
+| `memory_context_checker.py` | `UserPromptSubmit` | `claude-haiku-5-5` (`checker`) | Per-prompt recall check against the vault |
+| `memory_extractor.py` | `Stop` | `claude-haiku-5-5` (`extractor`) | Extracts new transcript content into the vault; line-cursor state |
+| `log-session.js` | `Stop` | none | Session logging; errors are swallowed (`|| true`) |
+| `load_memory.py` | manual (this skill) | none (`--catch-up` uses `extractor`) | Loads the vault; `--catch-up` runs the extractor |
+| `check_prereqs.py` | manual / setup | tests every configured model | Checks prerequisites for the memory tooling |
+| `failure_clarification_guard.py` | `PreToolUse` | `claude-haiku-5-5` (`guard`) | Detects a stuck or looping agent and asks the user for clarification |
+| `memory_config.json` | read by the scripts | — | Holds `vault_path` and the `models` block |
+
+### Choosing models
+
+Each LLM-calling hook reads its model from `memory_config.json` -> `models`
+(`extractor`, `checker`, `guard`), so swapping a model is a config edit, not a
+code edit. If a key is missing the script uses its built-in default.
+`fallback` is passed as `--fallback-model` when it differs from the main model
+(the CLI rejects identical ones). After changing models, run
+`python ~/.claude/hooks/check_prereqs.py` -- it test-calls every configured model.
+
+All three default to Haiku: a side-by-side test on a real ~12K-char transcript
+slice gave equivalent extraction quality to Sonnet at ~14x lower cost and
+similar latency, and the checker/guard sit on the hot path where speed matters.
 
 ### failure_clarification_guard.py
 

@@ -48,7 +48,22 @@ MAX_NEW_CONTENT_CHARS = 12000  # cap per extraction call; processed oldest-first
 # cheaper than a cache miss). Put ALL variable content in the prompt
 # argument, never in --system-prompt.
 CLAUDE_BIN = "claude"
-CLAUDE_MODEL = "claude-opus-4-5"
+def resolve_model(key: str, default: str) -> str:
+    """Model for this hook, read at runtime from memory_config.json ->
+    models[key], so swapping models is a config edit, not a code edit.
+    Falls back to `default` on any missing/invalid config."""
+    try:
+        cfg = json.loads((Path.home() / ".claude" / "hooks" / "memory_config.json").read_text(encoding="utf-8"))
+        value = str(((cfg or {}).get("models") or {}).get(key, "")).strip()
+        return value or default
+    except (OSError, ValueError, TypeError, AttributeError):
+        return default
+
+
+CLAUDE_MODEL = resolve_model("extractor", "claude-sonnet-5-5")
+FALLBACK_MODEL = resolve_model("fallback", "claude-haiku-5-5")
+# The CLI rejects a fallback identical to the main model, so only pass it when they differ.
+FALLBACK_ARGS = ["--fallback-model", FALLBACK_MODEL] if FALLBACK_MODEL != CLAUDE_MODEL else []
 CLAUDE_SYSTEM_PROMPT = "You are a plain text extraction assistant. Answer concisely with only the requested JSON."
 CLAUDE_MAX_BUDGET_USD = "0.50"
 
@@ -78,7 +93,7 @@ def call_claude(prompt: str) -> str:
                 CLAUDE_BIN, "-p", prompt,
                 "--output-format", "json",
                 "--safe-mode",
-                "--model", CLAUDE_MODEL,
+                "--model", CLAUDE_MODEL, *FALLBACK_ARGS,
                 "--system-prompt", CLAUDE_SYSTEM_PROMPT,
                 "--allowedTools", "",
                 "--strict-mcp-config",
